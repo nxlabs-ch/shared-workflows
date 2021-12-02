@@ -1,0 +1,18 @@
+on:
+  pull_request:
+  push:
+    # branches:
+    #   - master
+
+jobs:
+  version:
+    uses: noveto-com/shared-workflows/.github/workflows/version.yml@develop
+
+  run-test:
+    runs-on: ubuntu-20.04
+    needs: version
+    steps:
+      - name: Version
+        run: |
+          echo "version: ${{ needs.version.outputs.version }}"
+          echo "tag: ${{ needs.version.outputs.tag }}"
