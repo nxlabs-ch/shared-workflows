@@ -13,6 +13,7 @@ Shared Workflows's documentation
    introduction
    version
    docs
+   deploy
 
 Indices and tables
 ==================
