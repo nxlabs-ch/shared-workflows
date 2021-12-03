@@ -1,4 +1,4 @@
-# Shared Workflows
+# Introduction
 
 This repository contains reusable workflows that can be used in other repositories.
 
@@ -12,4 +12,4 @@ jobs:
     uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
 ```
 
-More details in the [documentation](docs/index.rst).
+Below is the documentation for each workflow.

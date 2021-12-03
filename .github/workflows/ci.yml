@@ -8,11 +8,10 @@ jobs:
   version:
     uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
 
-  run-test:
-    runs-on: ubuntu-20.04
+  docs:
     needs: version
-    steps:
-      - name: Version
-        run: |
-          echo "version: ${{ needs.version.outputs.version }}"
-          echo "tag: ${{ needs.version.outputs.tag }}"
+    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@develop
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pdf-name: "sharedworkflows.pdf"
+      dependencies: "Sphinx==3.5.4 myst-parser==0.15.2"
