@@ -18,15 +18,19 @@ Items 1. and 2. are a subset of [GitFlow](https://nvie.com/posts/a-successful-gi
 You should run `version` as the first job in your workflow.
 It will do the following:
 
-1. If it is a PR from `develop` to `main`:
+1. If it is a PR to `main`:
    1. Compute the future version based on commit messages. (see **Commit Message Format** below).
    2. Add a comment to the PR with the future version, tag and change log.
 2. If it is a push to `main`:
-   1. TAG the branch with the new release.
-3. Provide the current version number as an output:
-   1. This is the result of `git describe --tags --dirty`
-   2. For a normal build this will be something like: `v1.0.2-4-g66f9fca`
-   3. For a release build this will be the new tag, something like `v1.0.3`
+   1. TAG the branch with the new release tag.
+3. Provide the current version number and tag as an output:
+   1. This is the result of `git describe --tags --dirty`.
+   2. For a normal build this will be something like:
+      1. version: `1.0.2-4-g66f9fca`
+      2. tag: `v1.0.2-4-g66f9fca`
+   3. For a release build this will be the new version/tag, something like:
+      1. version: `1.0.3`
+      2. tag: `v1.0.3`
 
 Example:
 
