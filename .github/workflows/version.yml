@@ -70,7 +70,9 @@ jobs:
         run: git fetch --prune --unshallow --tags
       
       - name: Set Version
-        run: echo "VERSION_NUMBER=$(git describe --tags --dirty)" >> $GITHUB_ENV
+        run: |
+          TAG_VERSION_NUMBER=$(git describe --tags --dirty)
+          echo "VERSION_NUMBER=${TAG_VERSION_NUMBER:1}" >> $GITHUB_ENV
         shell: bash
 
     outputs:

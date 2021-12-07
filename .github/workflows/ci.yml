@@ -4,7 +4,7 @@ on:
 
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: noveto-com/shared-workflows/.github/workflows/version.yml@develop
 
   docs:
     needs: version
