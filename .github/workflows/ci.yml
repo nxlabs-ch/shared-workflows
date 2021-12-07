@@ -4,7 +4,7 @@ on:
 
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: noveto-com/shared-workflows/.github/workflows/version.yml@develop
 
   docs:
     needs: version
@@ -15,6 +15,7 @@ jobs:
       dependencies: "Sphinx==3.5.4 myst-parser==0.15.2"
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: [version, docs]
     uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@develop
     with:
