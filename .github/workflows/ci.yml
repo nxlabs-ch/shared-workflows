@@ -15,6 +15,7 @@ jobs:
       dependencies: "Sphinx==3.5.4 myst-parser==0.15.2"
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: [version, docs]
     uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@develop
     with:
