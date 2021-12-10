@@ -12,7 +12,6 @@ jobs:
     with:
       version: ${{ needs.version.outputs.version }}
       pdf-name: "sharedworkflows.pdf"
-      dependencies: "Sphinx==3.5.4 myst-parser==0.15.2"
 
   deploy:
     if: github.ref == 'refs/heads/main'
