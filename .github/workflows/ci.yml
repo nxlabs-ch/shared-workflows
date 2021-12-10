@@ -1,18 +1,26 @@
 on:
   pull_request:
   push:
-    # branches:
-    #   - master
 
 jobs:
   version:
     uses: noveto-com/shared-workflows/.github/workflows/version.yml@develop
 
-  run-test:
-    runs-on: ubuntu-20.04
+  docs:
     needs: version
-    steps:
-      - name: Version
-        run: |
-          echo "version: ${{ needs.version.outputs.version }}"
-          echo "tag: ${{ needs.version.outputs.tag }}"
+    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@develop
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pdf-name: "sharedworkflows.pdf"
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: [version, docs]
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@develop
+    with:
+      version: ${{ needs.version.outputs.version }}
+      project: shared-workflows
+    secrets:
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
