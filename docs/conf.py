@@ -12,6 +12,7 @@
 #
 import os
 from pathlib import Path
+from datetime import date
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -28,8 +29,8 @@ def get_version():
 # -- Project information -----------------------------------------------------
 
 project = 'Shared Workflows'
-copyright = '2021, Noveto'
-author = 'Noveto'
+copyright = f"{date.today().year}, Noveto"
+author = 'Noveto Systems Ltd.'
 
 # The full version, including alpha/beta/rc tags
 release = get_version()
