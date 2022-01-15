@@ -31,7 +31,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install Sphinx==3.5.4 myst-parser==0.15.2
       - name: Install additional packages for documentation building
-        run: sudo apt-get install -y texlive texlive-latex-extra latexmk
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            texlive=2019.20200218-1 \
+            texlive-latex-extra=2019.202000218-1 \
+            latexmk=1:4.67-0.1
       - name: Save Version
         run:  echo ${{ inputs.version }} > .version
       - name: Build documentation
