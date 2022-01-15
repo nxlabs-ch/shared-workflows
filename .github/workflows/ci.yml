@@ -8,7 +8,7 @@ jobs:
 
   docs:
     needs: version
-    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@feature/sha256
+    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@874dae19b7bcbe5f6a2621b098082f8fa38a300f
     with:
       version: ${{ needs.version.outputs.version }}
       pdf-name: "sharedworkflows.pdf"
