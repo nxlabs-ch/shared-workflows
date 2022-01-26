@@ -4,7 +4,7 @@ on:
 
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@fix-tag
+    uses: noveto-com/shared-workflows/.github/workflows/version.yml@c7154fe45d4c2e43cca499a1949d28e222e05865
 
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
@@ -29,6 +29,6 @@ jobs:
   release:
     if: github.ref == 'refs/heads/main'
     needs: [version, docs]
-    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@fix-tag
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@c7154fe45d4c2e43cca499a1949d28e222e05865
     with:
       tag: ${{ needs.version.outputs.tag }}
