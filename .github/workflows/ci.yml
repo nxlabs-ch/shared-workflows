@@ -28,6 +28,6 @@ jobs:
   release:
     if: github.ref == 'refs/heads/main'
     needs: [version, docs]
-    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@feature/upload-release
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@47cdb3a3fef8c4d41720090c2a7a703052c17660
     with:
       tag: ${{ needs.version.outputs.tag }}
