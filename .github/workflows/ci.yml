@@ -4,7 +4,7 @@ on:
 
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@feature/changelog-release
+    uses: noveto-com/shared-workflows/.github/workflows/version.yml@76b5848a444c6839d637ec624360a26adf5640f9
 
   docs:
     needs: version
@@ -16,7 +16,7 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
     needs: [version, docs]
-    uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@develop
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@76b5848a444c6839d637ec624360a26adf5640f9
     with:
       version: ${{ needs.version.outputs.version }}
       project: shared-workflows
