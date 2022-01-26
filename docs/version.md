@@ -23,6 +23,7 @@ It will do the following:
    2. Add a comment to the PR with the future version, tag and change log.
 2. If it is a push to `main`:
    1. TAG the branch with the new release tag.
+   2. Create a GitHub release with the changelog
 3. Provide the current version number and tag as an output:
    1. This is the result of `git describe --tags --dirty`.
    2. For a normal build this will be something like:
