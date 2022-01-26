@@ -6,6 +6,9 @@ on:
       version:
         description: "The calculated version"
         value: ${{ jobs.prepare-release.outputs.version }}
+      tag:
+        description: "The new tag if any"
+        value: ${{ jobs.prepare-release.outputs.tag }}
 
 jobs:
   prepare-release:
@@ -69,7 +72,8 @@ jobs:
 
       - name: Outputs for main
         if: github.ref == 'refs/heads/main'
-        run: echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
+        run: |
+          echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -81,7 +85,12 @@ jobs:
         run: |
           TAG_VERSION_NUMBER=$(git describe --tags --dirty)
           echo "VERSION_NUMBER=${TAG_VERSION_NUMBER:1}" >> $GITHUB_ENV
-          echo "Version is ${TAG_VERSION_NUMBER:1}"
+        shell: bash
+
+      - name: Display outputs
+        run: |
+          echo "Version is ${{ env.VERSION_NUMBER }}"
+          echo "TAG is ${{ env.NEW_TAG }}"
         shell: bash
 
     outputs:
