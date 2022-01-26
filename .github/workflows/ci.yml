@@ -7,6 +7,7 @@ jobs:
     uses: noveto-com/shared-workflows/.github/workflows/version.yml@76b5848a444c6839d637ec624360a26adf5640f9
 
   docs:
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version
     uses: noveto-com/shared-workflows/.github/workflows/docs.yml@874dae19b7bcbe5f6a2621b098082f8fa38a300f
     with:
@@ -24,3 +25,10 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: [version, docs]
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@47cdb3a3fef8c4d41720090c2a7a703052c17660
+    with:
+      tag: ${{ needs.version.outputs.tag }}
