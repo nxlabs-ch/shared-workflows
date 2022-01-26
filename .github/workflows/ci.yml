@@ -24,3 +24,10 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: [version, docs]
+    uses: noveto-com/shared-workflows/.github/workflows/deploy-release.yml@feature/upload-release
+    with:
+      tag: ${{ needs.version.outputs.tag }}

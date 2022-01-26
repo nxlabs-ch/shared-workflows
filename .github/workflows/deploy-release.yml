@@ -1,0 +1,32 @@
+name: Deploy Artifacts to Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "The tag of the release to upload to"
+        required: true
+        type: string
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Get all artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Zip again
+        run: |
+          cd artifacts
+          for i in */; do cd "$i" && zip -0 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
+
+      - name: Upload to release
+        uses: svenstaro/upload-release-action@2.2.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: artifacts/*
+          tag: ${{ inputs.tag }}
+          overwrite: true
+          file_glob: true
