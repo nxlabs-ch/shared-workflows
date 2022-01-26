@@ -7,6 +7,7 @@ jobs:
     uses: noveto-com/shared-workflows/.github/workflows/version.yml@76b5848a444c6839d637ec624360a26adf5640f9
 
   docs:
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version
     uses: noveto-com/shared-workflows/.github/workflows/docs.yml@874dae19b7bcbe5f6a2621b098082f8fa38a300f
     with:
