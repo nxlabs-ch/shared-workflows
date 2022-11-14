@@ -17,7 +17,7 @@ jobs:
       - name: Pre-calculate for PR to main
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
         id: version-pr
-        uses: mathieudutour/github-tag-action@v6.0
+        uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: main
@@ -28,7 +28,7 @@ jobs:
 
       - name: New version/tag as comment in PR
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -49,7 +49,7 @@ jobs:
       - name: Bump version and push tag
         if: github.ref == 'refs/heads/main'
         id: version-main
-        uses: mathieudutour/github-tag-action@v6.0
+        uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_sha: ${{ steps.merge.outputs.merge_sha }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Create GitHub release with changelog
         if: github.ref == 'refs/heads/main'
-        uses: ncipollo/release-action@v1.9.0
+        uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.version-main.outputs.new_tag }}
           name: Release ${{ steps.version-main.outputs.new_tag }}
@@ -76,7 +76,7 @@ jobs:
           echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Get tags
         run: git fetch --prune --unshallow --tags

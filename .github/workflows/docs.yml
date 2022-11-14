@@ -25,9 +25,9 @@ jobs:
   build-documentation:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8.10
       - name: Install dependencies
@@ -49,11 +49,11 @@ jobs:
         run: |
           make -C ${{ inputs.docs-folder }} html
           make -C ${{ inputs.docs-folder }} latexpdf
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: documentationHTML
           path: docs/_build/html/
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: documentation
           path: "docs/_build/latex/${{ inputs.pdf-name }}"       
