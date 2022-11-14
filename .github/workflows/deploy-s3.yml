@@ -35,7 +35,7 @@ jobs:
         run: echo "${{ inputs.version }}"
 
       - name: Get all artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
 
