@@ -16,6 +16,10 @@ on:
         default: docs
         required: false
         type: string
+      dependencies:
+        description: "Additional pip dependencies"
+        required: false
+        type: string
 
 jobs:
   build-documentation:
@@ -30,6 +34,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install Sphinx==3.5.4 myst-parser==0.15.2 "jinja2>=3.0.3,<3.1.0"
+      - name: Install additional pip dependencies
+        if: "${{ inputs.dependencies != '' }}"
+        run: pip install ${{ inputs.dependencies }}
       - name: Install additional packages for documentation building
         run: |
           sudo apt-get update && sudo apt-get install -y \
