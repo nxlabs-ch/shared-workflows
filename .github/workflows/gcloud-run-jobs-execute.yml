@@ -1,0 +1,41 @@
+name: Google Cloud Run execute job
+on:
+  workflow_call:
+    inputs:
+      job-name:
+        description: "Name of the pre-existing job"
+        required: true
+        type: string
+      region:
+        description: "The region where to execute the job, defaults to europe-west6"
+        default: europe-west6
+        required: false
+        type: string
+    secrets:
+      GCP_PROJECT:
+        description: "Google Cloud Project ID"
+        required: true
+      GCP_CREDENTIALS:
+        description: "Credentials for service account"
+        required: true
+
+jobs:
+  execute:
+    runs-on: ubuntu-20.04
+    steps:
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          install_components: 'beta'
+
+      - name: Execute Job
+        run: |
+          gcloud beta run jobs execute ${{ inputs.job-name }} \
+            --project ${{ secrets.GCP_PROJECT }} \
+            --region ${{ inputs.region }} \
