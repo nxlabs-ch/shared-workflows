@@ -14,6 +14,7 @@ Shared Workflows's documentation
    version
    docs
    deploy
+   gcloud
 
 Indices and tables
 ==================
