@@ -15,7 +15,10 @@ jobs:
       pdf-name: "sharedworkflows.pdf"
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    # Disable S3 upload: no AWS S3 service available for now
+    # TODO: migrate to Google S3
+    # if: github.ref == 'refs/heads/main'
+    if: false
     needs: [version, docs]
     uses: ./.github/workflows/deploy-s3.yml
     with:
