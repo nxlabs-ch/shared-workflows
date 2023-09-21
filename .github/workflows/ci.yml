@@ -6,6 +6,13 @@ jobs:
   version:
     uses: ./.github/workflows/version.yml
 
+  check-rust-version:
+    needs: version
+    uses: ./.github/workflows/rust-version.yml
+    with: 
+      version: ${{ needs.version.outputs.tag }}
+      cargo_toml_dir: sample_rust
+  
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version

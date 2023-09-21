@@ -12,6 +12,7 @@ Shared Workflows's documentation
 
    introduction
    version
+   rust-version
    docs
    deploy
    gcloud
