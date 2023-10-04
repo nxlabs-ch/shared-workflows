@@ -29,9 +29,11 @@ It will do the following:
    2. For a normal build this will be something like:
       1. version: `1.0.2-4-g66f9fca`
       2. tag: `v1.0.2-4-g66f9fca`
+      3. pep440: `1.0.2.dev4`
    3. For a release build this will be the new version/tag, something like:
       1. version: `1.0.3`
       2. tag: `v1.0.3`
+      3. pep440: `1.0.3`
 
 Example:
 
