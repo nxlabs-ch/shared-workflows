@@ -9,6 +9,9 @@ on:
       tag:
         description: "The new tag if any"
         value: ${{ jobs.prepare-release.outputs.tag }}
+      pep440:
+        description: "The PEP440 compatible version for python packages"
+        value: ${{ jobs.prepare-release.outputs.pep440 }}
 
 jobs:
   prepare-release:
@@ -85,14 +88,18 @@ jobs:
         run: |
           TAG_VERSION_NUMBER=$(git describe --tags --dirty)
           echo "VERSION_NUMBER=${TAG_VERSION_NUMBER:1}" >> $GITHUB_ENV
+          PEP440=$(git describe --tags --dirty | sed -e 's/v//' | sed -e 's/-/.dev/' | sed -e 's/-g.*//')
+          echo "PEP440_VERSION_NUMBER=${PEP440}" >> $GITHUB_ENV
         shell: bash
 
       - name: Display outputs
         run: |
           echo "Version is ${{ env.VERSION_NUMBER }}"
           echo "TAG is ${{ env.NEW_TAG }}"
+          echo "PEP440 is ${{ env.PEP440_VERSION_NUMBER }}"
         shell: bash
 
     outputs:
       version: ${{ env.VERSION_NUMBER }}
       tag: ${{ env.NEW_TAG }}
+      pep440: ${{ env.PEP440_VERSION_NUMBER }}
