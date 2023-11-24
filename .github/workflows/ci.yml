@@ -13,6 +13,13 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       cargo_toml_dir: sample_rust
   
+  check-kicad-version:
+    needs: version
+    uses: ./.github/workflows/kicad-version.yml
+    with: 
+      version: ${{ needs.version.outputs.tag }}
+      kicad_sch_path: sample_kicad/sample/sample.kicad_sch
+
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version
