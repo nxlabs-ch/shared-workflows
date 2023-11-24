@@ -13,6 +13,7 @@ Shared Workflows's documentation
    introduction
    version
    rust-version
+   kicad-version
    docs
    deploy
    gcloud
