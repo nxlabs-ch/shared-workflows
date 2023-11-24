@@ -6,3 +6,6 @@
 
 # Sphinx documentation
 docs/_build/
+
+# Kicad backups
+*-backups
