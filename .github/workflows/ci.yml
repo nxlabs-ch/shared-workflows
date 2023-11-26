@@ -20,6 +20,14 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       kicad_sch_path: sample_kicad/sample/sample.kicad_sch
 
+  kibot:
+    needs: [version, check-kicad-version]
+    uses: ./.github/workflows/kicad-release.yml
+    with: 
+      version: ${{ needs.version.outputs.version }}
+      dir: sample_kicad
+      name: sample
+
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version
