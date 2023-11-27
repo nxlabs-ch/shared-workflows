@@ -20,7 +20,7 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       kicad_sch_path: sample_kicad/sample/sample.kicad_sch
 
-  kibot:
+  kicad-release:
     needs: [version, check-kicad-version]
     uses: ./.github/workflows/kicad-release.yml
     with: 
