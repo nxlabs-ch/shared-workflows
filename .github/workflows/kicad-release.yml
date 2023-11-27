@@ -12,8 +12,9 @@ on:
         required: true
         type: string
       dir:
-        description: "The directory where to project folder resides"
-        required: true
+        description: "The directory where to project folder resides, defaults to '.'"
+        default: '.'
+        required: false
         type: string
 
 jobs:
