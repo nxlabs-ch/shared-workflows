@@ -1,0 +1,84 @@
+name: KiCad Release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "The version string for this release"
+        required: true
+        type: string
+      name:
+        description: "The name of the project"
+        required: true
+        type: string
+      dir:
+        description: "The directory where to project folder resides, defaults to '.'"
+        default: '.'
+        required: false
+        type: string
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+  
+      - name: Change version in file
+        run: |
+          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $FILE.kicad_sch
+          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $FILE.kicad_pcb || true
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          FILE: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}
+
+      - name: Compress project
+        run: tar -czf $NAME-$VERSION.tar.gz $DIR/$NAME
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          DIR: ${{ inputs.dir }}
+          NAME: ${{ inputs.name }}
+
+      - name: Run KiBot
+        uses: INTI-CMNB/KiBot@v2_k7
+        with:
+          config: ${{ inputs.dir }}/config.kibot.yaml
+          schema: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}.kicad_sch
+          dir: output
+
+      - name: Prepare artifacts with version in name
+        run: |
+          cp output/BoM/Generic/$NAME-bom.csv $NAME-bom-$VERSION.csv
+          cp output/Schematic/$NAME-schematic.pdf $NAME-schematic-$VERSION.pdf
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          NAME: ${{ inputs.name }}
+
+      - name: Save artifact (all outputs)
+        uses: actions/upload-artifact@v3
+        with:
+          name: output-${{ inputs.version }}
+          path: output
+  
+      - name: Save artifact (BOM)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-bom-${{ inputs.version }}
+          path: ${{ inputs.name }}-bom-${{ inputs.version }}.csv
+
+      - name: Save artifact (Schematic)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-schematic-${{ inputs.version }}
+          path: ${{ inputs.name }}-schematic-${{ inputs.version }}.pdf
+
+      - name: Save artifact (Project)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.version }}
+          path: ${{ inputs.name }}-${{ inputs.version }}.tar.gz
