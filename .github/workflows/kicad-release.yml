@@ -26,14 +26,23 @@ jobs:
         with:
           lfs: true
   
-      - name: Change version in file
+      - name: Change version in files
         run: |
-          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $FILE.kicad_sch
-          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $FILE.kicad_pcb || true
+          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $PROJECT_DIR/*.kicad_sch
+          sed -i 's/(rev "[0-9a-zA-Z._-]*")/(rev "'$VERSION'")/' $PROJECT_DIR/*.kicad_pcb || true
         shell: bash
         env:
           VERSION: ${{ inputs.version }}
-          FILE: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}
+          PROJECT_DIR: ${{ inputs.dir }}/${{ inputs.name }}
+
+      - name: Change date in files
+        run: |
+          CURRENT_DATE=$(date +"%Y-%m-%d")
+          sed -i 's/(date "[0-9a-zA-Z -]*")/(date "'$CURRENT_DATE'")/' $PROJECT_DIR/*.kicad_sch
+          sed -i 's/(date "[0-9a-zA-Z -]*")/(date "'$CURRENT_DATE'")/' $PROJECT_DIR/*.kicad_pcb || true
+        shell: bash
+        env:
+          PROJECT_DIR: ${{ inputs.dir }}/${{ inputs.name }}
 
       - name: Compress project
         run: tar -czf $NAME-$VERSION.tar.gz $DIR/$NAME

@@ -1,6 +1,6 @@
 # KiCad Release
 
-The **KiCad Release** workflow `kicad-release.yml` sets the version to a KiCad project and creates the artifacts from the project.
+The **KiCad Release** workflow `kicad-release.yml` sets the version and date to a KiCad project and creates the artifacts from the project.
 
 ## Pre-requisites
 
