@@ -79,7 +79,7 @@ jobs:
           echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get tags
         run: git fetch --prune --unshallow --tags
