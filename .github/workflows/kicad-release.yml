@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: true
   
@@ -69,25 +69,25 @@ jobs:
           NAME: ${{ inputs.name }}
 
       - name: Save artifact (all outputs)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: output-${{ inputs.version }}
           path: output
   
       - name: Save artifact (BOM)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-bom-${{ inputs.version }}
           path: ${{ inputs.name }}-bom-${{ inputs.version }}.csv
 
       - name: Save artifact (Schematic)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-schematic-${{ inputs.version }}
           path: ${{ inputs.name }}-schematic-${{ inputs.version }}.pdf
 
       - name: Save artifact (Project)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-${{ inputs.version }}
           path: ${{ inputs.name }}-${{ inputs.version }}.tar.gz
