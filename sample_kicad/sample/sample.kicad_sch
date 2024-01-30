@@ -6,7 +6,7 @@
 
   (title_block
     (date "15 nov 2012")
-    (rev "0.12.1")
+    (rev "0.12.2")
   )
 
   (lib_symbols
