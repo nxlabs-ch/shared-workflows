@@ -31,7 +31,7 @@ jobs:
 
       - name: New version/tag as comment in PR
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -79,7 +79,7 @@ jobs:
           echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get tags
         run: git fetch --prune --unshallow --tags
