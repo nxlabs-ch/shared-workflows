@@ -15,7 +15,7 @@ on:
 
 jobs:
   prepare-release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Pre-calculate for PR to main
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
