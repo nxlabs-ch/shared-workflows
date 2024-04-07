@@ -2,6 +2,15 @@ name: Semantic Version Management
 
 on:
   workflow_call:
+    inputs:
+      preface:
+        description: "The file path whose content to use as preface for the release notes, in markdown format"
+        required: false
+        type: string
+      postface:
+        description: "The file path whose content to use as postface for the release notes, in markdown format"
+        required: false
+        type: string
     outputs:
       version:
         description: "The calculated version"
@@ -29,12 +38,40 @@ jobs:
           custom_release_rules: api:minor:API Changes,breaking:major:Major Changes,build:patch:Build Systems,ci:patch:Continuous Integration,doc:patch:Documentation,docs:patch:Documentation,feature:minor:Features,fix:patch:Bug Fixes,perf:patch:Performance Improvements,refactor:patch:Code Refactoring,revert:minor:Reverts,test:patch:Tests
           dry_run: true
 
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Read preface file
+        if: ${{ inputs.preface != '' }}
+        id: preface
+        run: |
+          {
+            echo 'preface<<EOF'
+            cat ${{ inputs.preface }}
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Read postface file
+        if: ${{ inputs.postface != '' }}
+        id: postface
+        run: |
+          {
+            echo 'postface<<EOF'
+            cat ${{ inputs.postface }}
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
       - name: New version/tag as comment in PR
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
+            ${{ steps.preface.outputs.preface }}
             # New release
             This PR was detected as a new release, see release details below.
             If you are ok to release with those values, please approve the PR.
@@ -47,6 +84,7 @@ jobs:
 
             ## Changelog
             ${{ steps.version-pr.outputs.changelog }}
+            ${{ steps.postface.outputs.postface }}
           reactions: 'eyes'
 
       - name: Bump version and push tag
@@ -77,9 +115,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           echo "NEW_TAG=${{ steps.version-main.outputs.new_tag }}" >> $GITHUB_ENV
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Get tags
         run: git fetch --prune --unshallow --tags
