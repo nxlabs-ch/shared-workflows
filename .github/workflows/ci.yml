@@ -5,6 +5,9 @@ on:
 jobs:
   version:
     uses: ./.github/workflows/version.yml
+    with:
+      preface: "release/preface.md"
+      postface: "release/postface.md"
 
   check-rust-version:
     needs: version
