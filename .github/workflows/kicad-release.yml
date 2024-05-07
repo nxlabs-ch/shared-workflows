@@ -53,7 +53,7 @@ jobs:
           NAME: ${{ inputs.name }}
 
       - name: Run KiBot
-        uses: INTI-CMNB/KiBot@v2_k7
+        uses: INTI-CMNB/KiBot@v2_k8
         with:
           config: ${{ inputs.dir }}/config.kibot.yaml
           schema: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}.kicad_sch
