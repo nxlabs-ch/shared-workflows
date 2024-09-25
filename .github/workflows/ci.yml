@@ -44,7 +44,7 @@ jobs:
     # TODO: migrate to Google S3
     # if: github.ref == 'refs/heads/main'
     if: false
-    needs: [version, docs]
+    needs: [version, docs, kicad-release]
     uses: ./.github/workflows/deploy-s3.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -56,7 +56,7 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs]
+    needs: [version, docs, kicad-release]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
