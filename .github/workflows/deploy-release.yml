@@ -20,7 +20,7 @@ jobs:
       - name: Zip again
         run: |
           cd artifacts
-          for i in */; do cd "$i" && zip -0 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
+          for i in */; do cd "$i" && zip -9 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
 
       - name: Upload to release
         uses: svenstaro/upload-release-action@2.6.1
