@@ -18,6 +18,7 @@ Shared Workflows's documentation
    docs
    deploy
    gcloud
+   pr-change-log
 
 Indices and tables
 ==================
