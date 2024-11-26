@@ -1,0 +1,41 @@
+name: PR Change Log
+
+on:
+  workflow_call:
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Pre-calculate for PR to main
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
+        id: version-pr
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_branches: main
+          create_annotated_tag: true
+          default_bump: false
+          custom_release_rules: api:minor:API Changes,breaking:major:Major Changes,build:patch:Build Systems,ci:patch:Continuous Integration,doc:patch:Documentation,docs:patch:Documentation,feature:minor:Features,fix:patch:Bug Fixes,perf:patch:Performance Improvements,refactor:patch:Code Refactoring,revert:minor:Reverts,test:patch:Tests
+          dry_run: true
+
+      - name: New version/tag as comment in PR
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            # New release
+            This PR was detected as a new release, see release details below.
+            If you are ok to release with those values, please approve the PR.
+
+            ## Version `${{ steps.version-pr.outputs.new_version }}`
+            The new release will be `${{ steps.version-pr.outputs.new_version }}`, update from `${{ steps.version-pr.outputs.previous_version }}`
+
+            ## TAG `${{ steps.version-pr.outputs.new_tag }}`
+            The new tag will be `${{ steps.version-pr.outputs.new_tag }}`, update from `${{ steps.version-pr.outputs.previous_tag }}`
+
+            ## Changelog
+            ${{ steps.version-pr.outputs.changelog }}
+          reactions: 'eyes'
+
