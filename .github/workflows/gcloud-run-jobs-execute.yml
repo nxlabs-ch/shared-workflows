@@ -38,4 +38,4 @@ jobs:
         run: |
           gcloud beta run jobs execute ${{ inputs.job-name }} \
             --project ${{ secrets.GCP_PROJECT }} \
-            --region ${{ inputs.region }} \
+            --region ${{ inputs.region }}
