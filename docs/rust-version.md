@@ -4,7 +4,7 @@ The **Rust Version Check** workflow `rust-version.yml` checks that the Rust vers
 
 ## Pre-requisites
 
-1. The workflow expects a `Corgo.toml` file in the provided `cargo_toml_dir` directory to check the Rust version
+1. The workflow expects a `Cargo.toml` file in the provided `cargo_toml_dir` directory to check the Rust version
 2. The workflow expects a the `tag` output of the `version.yml` workflow.
 
 ## Operation

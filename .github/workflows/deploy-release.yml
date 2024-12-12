@@ -17,7 +17,7 @@ jobs:
         with:
           path: artifacts
 
-      - name: Zip again
+      - name: Zip each artifact again
         run: |
           cd artifacts
           for i in */; do cd "$i" && zip -9 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
