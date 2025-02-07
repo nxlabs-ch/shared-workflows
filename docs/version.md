@@ -40,7 +40,7 @@ Example:
 ``` yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 ```
 
 ## Commit Message Format

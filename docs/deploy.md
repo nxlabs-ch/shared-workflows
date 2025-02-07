@@ -20,11 +20,11 @@ Example:
 ``` yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   docs:
     needs: version
-    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/docs.yml@main
     with:
       version: ${{ needs.version.outputs.version }}
       pdf-name: "User-Manual.pdf"
@@ -32,7 +32,7 @@ jobs:
 
   deploy:
     needs: [version, docs]
-    uses: noveto-com/shared-workflows/.github/workflows/deploy-s3.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/deploy-s3.yml@main
     with:
       version: ${{ needs.version.outputs.version }}
       project: shared-workflows

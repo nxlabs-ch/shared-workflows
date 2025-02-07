@@ -26,11 +26,11 @@ Example:
 ```yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   build-documentation:
     needs: version
-    uses: noveto-com/shared-workflows/.github/workflows/docs.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/docs.yml@main
     with:
       version: ${{ needs.version.outputs.version }}
       pdf-name: "User-Manual.pdf"

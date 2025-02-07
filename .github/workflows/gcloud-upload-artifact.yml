@@ -16,7 +16,7 @@ on:
         type: string
       bucket:
         description: "The GCS bucket where the artifact will be uploaded"
-        default: artifacts.noveto.com
+        default: artifacts.nxlabs.ch
         required: false
         type: string
     secrets:
