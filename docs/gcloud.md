@@ -23,7 +23,7 @@ jobs:
       region: us-west1
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```
 
 ## Google Cloud Upload Artifact
@@ -67,7 +67,7 @@ jobs:
       bucket: artifacts.nxlabs.ch
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```
 
 ## Google Cloud Deploy
@@ -109,5 +109,5 @@ jobs:
       project: my-project-123456
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```
