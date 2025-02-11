@@ -13,3 +13,5 @@ jobs:
 ```
 
 More details in the [documentation](docs/index.rst).
+
+This repository continues the work started in [noveto-com/shared-workflows](https://github.com/noveto-com/shared-workflows) that is no longer maintained.
