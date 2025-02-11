@@ -17,13 +17,13 @@ Example:
 ```yaml
 jobs:
   execute-job:
-    uses: noveto-com/shared-workflows/.github/workflows/gcloud-run-jobs-execute.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/gcloud-run-jobs-execute.yml@main
     with:
       job-name: build-project
       region: us-west1
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```
 
 ## Google Cloud Upload Artifact
@@ -32,7 +32,7 @@ The **Google Cloud Upload Artifact** workflow `gcloud-upload-artifact.yml` wraps
 
 ### Pre-requisites
 
-1. The target bucket must exist on Google Cloud Storage. Default is `gs://artifacts.noveto.com`.
+1. The target bucket must exist on Google Cloud Storage. Default is `gs://artifacts.nxlabs.ch`.
 2. There must be a service account with the necessary permissions to upload files to the bucket.
 3. The service account key must be stored as a secret in the repository or organization.
 
@@ -44,15 +44,15 @@ inputs:
 
 - `source`: The path to the file to upload.
 - `destination`: The folder in the bucket where the file will be uploaded.
-- `bucket`: The bucket where the file will be uploaded. Default is `artifacts.noveto.com`.
+- `bucket`: The bucket where the file will be uploaded. Default is `artifacts.nxlabs.ch`.
 
 So if the inputs are:
 
 - `source`: `./dist/my-app.zip`
 - `destination`: `my-project`
-- `bucket`: `artifacts.noveto.com`
+- `bucket`: `artifacts.nxlabs.ch`
 
-The file `my-app.zip` will be uploaded to `gs://artifacts.noveto.com/my-project/my-app.zip`.
+The file `my-app.zip` will be uploaded to `gs://artifacts.nxlabs.ch/my-project/my-app.zip`.
 Note that the source folder `.dist` is not included in the destination path.
 
 Example:
@@ -60,14 +60,14 @@ Example:
 ```yaml
 jobs:
   upload-artifact:
-    uses: noveto-com/shared-workflows/.github/workflows/gcloud-upload-artifact.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/gcloud-upload-artifact.yml@main
     with:
       source: ./dist/my-app.zip
       destination: my-project
-      bucket: artifacts.noveto.com
+      bucket: artifacts.nxlabs.ch
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```
 
 ## Google Cloud Deploy
@@ -92,22 +92,22 @@ Example:
 ```yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   build:
     needs: version
-    uses: noveto-com/shared-workflows/.github/workflows/build.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/build.yml@main
     with:
       version: ${{ needs.version.outputs.version }}
       dependencies: "npm install"
 
   deploy:
     needs: [version, build]
-    uses: noveto-com/shared-workflows/.github/workflows/gcloud-deploy.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/gcloud-deploy.yml@main
     with:
       version: ${{ needs.version.outputs.version }}
       project: my-project-123456
     secrets:
       GCP_PROJECT: my-project-123456
-      GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 ```

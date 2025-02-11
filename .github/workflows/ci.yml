@@ -48,7 +48,7 @@ jobs:
       project: shared-workflows
     secrets:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-      GCP_CREDENTIALS: ${{ secrets.GCP_ARTIFACTS_SERVICE_ACCOUNT_KEY }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
   release:
     if: github.ref == 'refs/heads/main'
@@ -67,4 +67,4 @@ jobs:
       destination: shared-workflows
     secrets:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-      GCP_CREDENTIALS: ${{ secrets.GCP_ARTIFACTS_SERVICE_ACCOUNT_KEY }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}

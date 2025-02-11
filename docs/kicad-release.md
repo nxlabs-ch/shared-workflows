@@ -23,11 +23,11 @@ Example:
 ```yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   kicad-release:
     needs: version
-    uses: noveto-com/shared-workflows//.github/workflows/kicad-release.yml@main
+    uses: nxlabs-ch/shared-workflows//.github/workflows/kicad-release.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       dir: my_project

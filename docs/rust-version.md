@@ -23,11 +23,11 @@ Example:
 ```yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   check-rust-version:
     needs: version
-    uses: noveto-com/shared-workflows//.github/workflows/rust-version.yml@main
+    uses: nxlabs-ch/shared-workflows//.github/workflows/rust-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       cargo_toml_dir: my_module

@@ -16,27 +16,31 @@ on:
         type: string
       bucket:
         description: "The GCS bucket where the artifact will be uploaded"
-        default: artifacts.noveto.com
+        default: artifacts.nxlabs.ch
         required: false
         type: string
     secrets:
       GCP_PROJECT:
         description: "Google Cloud Project ID"
         required: true
-      GCP_CREDENTIALS:
-        description: "Credentials for service account"
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        description: "Workload Identity Provider name"
         required: true
 
 jobs:
   upload-to-gs:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     steps:
       - uses: actions/checkout@v4
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          project_id: ${{ secrets.GCP_PROJECT }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
