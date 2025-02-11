@@ -29,8 +29,8 @@ def get_version():
 # -- Project information -----------------------------------------------------
 
 project = 'Shared Workflows'
-copyright = f"{date.today().year}, Noveto"
-author = 'Noveto Systems Ltd.'
+copyright = f"{date.today().year}, NxLabs"
+author = "Nx Labs"
 
 # The full version, including alpha/beta/rc tags
 release = get_version()

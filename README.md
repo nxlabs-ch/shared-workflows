@@ -9,7 +9,9 @@ To use one of the workflows from your repository, just create a job that referen
 ``` yaml
 jobs:
   version:
-    uses: noveto-com/shared-workflows/.github/workflows/version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 ```
 
 More details in the [documentation](docs/index.rst).
+
+This repository continues the work started in [noveto-com/shared-workflows](https://github.com/noveto-com/shared-workflows) that is no longer maintained.

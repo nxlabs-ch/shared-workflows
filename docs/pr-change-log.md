@@ -13,7 +13,7 @@ Example:
 
 jobs:
   pr-change-log:
-    uses: noveto-com/shared-workflows/.github/workflows/pr-change-log.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/pr-change-log.yml@main
     with:
       target-branch: develop
 ```
