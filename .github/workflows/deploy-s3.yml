@@ -29,7 +29,7 @@ on:
 
 jobs:
   deploy-s3:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Version
         run: echo "${{ inputs.version }}"
