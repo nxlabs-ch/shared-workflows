@@ -24,7 +24,7 @@ on:
 
 jobs:
   prepare-release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Pre-calculate for PR to main
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
@@ -105,7 +105,10 @@ jobs:
         with:
           tag: ${{ steps.version-main.outputs.new_tag }}
           name: Release ${{ steps.version-main.outputs.new_tag }}
-          body: ${{ steps.version-main.outputs.changelog }}
+          body: |-
+            ${{ steps.preface.outputs.preface }}
+            ${{ steps.version-main.outputs.changelog }}
+            ${{ steps.postface.outputs.postface }}
 
       - name: Outputs for PR
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
