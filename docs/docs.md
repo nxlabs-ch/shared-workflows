@@ -16,7 +16,7 @@ The workflow will build two artifacts:
 1. `documentationHTML` with the documentation in HTML format.
 2. `documentation` with the documentation as a PDF file.
 
-It uses the Python version provided as input, that defaults to `3.8.10`.
+It uses the release version provided as input.
 
 The provided version will be written in a `.version` file at the root of the repository.
 You may/should use it to determine the version of the project/documentation.
