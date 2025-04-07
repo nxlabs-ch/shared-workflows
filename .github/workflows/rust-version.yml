@@ -26,7 +26,7 @@ jobs:
         - name: Get rust version from code
           id: rust-version
           run: |
-            echo "app_version=$(head -6 $CARGO_TOML_FILE | grep version | sed 's/"/ /g' | awk '{print $3}')" >> $GITHUB_OUTPUT
+            echo "app_version=$(head -6 $CARGO_TOML_FILE | grep version -m 1 | sed 's/"/ /g' | awk '{print $3}')" >> $GITHUB_OUTPUT
           env:
             CARGO_TOML_FILE: ${{ inputs.cargo_toml_dir }}/Cargo.toml
         
