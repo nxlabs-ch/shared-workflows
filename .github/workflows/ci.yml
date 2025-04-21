@@ -16,6 +16,13 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       cargo_toml_dir: sample_rust
   
+  check-toml-version:
+    needs: version
+    uses: ./.github/workflows/toml-version.yml
+    with: 
+      version: ${{ needs.version.outputs.tag }}
+      toml_file: sample_toml/pyproject.toml
+
   check-kicad-version:
     needs: version
     uses: ./.github/workflows/kicad-version.yml
