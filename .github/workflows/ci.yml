@@ -23,6 +23,13 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       toml_file: samples/toml/pyproject.toml
 
+  check-spec-version:
+      needs: version
+      uses: ./.github/workflows/spec-version.yml
+      with: 
+        version: ${{ needs.version.outputs.tag }}
+        spec_file: samples/spec/test.spec
+
   check-kicad-version:
     needs: version
     uses: ./.github/workflows/kicad-version.yml
