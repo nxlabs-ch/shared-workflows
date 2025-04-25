@@ -14,28 +14,35 @@ jobs:
     uses: ./.github/workflows/rust-version.yml
     with: 
       version: ${{ needs.version.outputs.tag }}
-      cargo_toml_dir: sample_rust
+      cargo_toml_dir: samples/rust
   
   check-toml-version:
     needs: version
     uses: ./.github/workflows/toml-version.yml
     with: 
       version: ${{ needs.version.outputs.tag }}
-      toml_file: sample_toml/pyproject.toml
+      toml_file: samples/toml/pyproject.toml
+
+  check-spec-version:
+      needs: version
+      uses: ./.github/workflows/spec-version.yml
+      with: 
+        version: ${{ needs.version.outputs.tag }}
+        spec_file: samples/spec/test.spec
 
   check-kicad-version:
     needs: version
     uses: ./.github/workflows/kicad-version.yml
     with: 
       version: ${{ needs.version.outputs.tag }}
-      kicad_sch_path: sample_kicad/sample/sample.kicad_sch
+      kicad_sch_path: samples/kicad/sample/sample.kicad_sch
 
   kicad-release:
     needs: [version, check-kicad-version]
     uses: ./.github/workflows/kicad-release.yml
     with: 
       version: ${{ needs.version.outputs.version }}
-      dir: sample_kicad
+      dir: samples/kicad
       name: sample
 
   docs:
