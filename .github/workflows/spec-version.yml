@@ -1,4 +1,4 @@
-name: Check version in TOML file against TAG version
+name: Check version in SPEC file against TAG version
 
 on:
   workflow_call:
@@ -7,13 +7,13 @@ on:
         description: "The TAG version string for this release"
         required: true
         type: string
-      toml_file:
-        description: "The path and name of the *.toml file"
+      spec_file:
+        description: "The path and name of the *.spec file"
         required: true
         type: string
     
 jobs:
-    toml-version:
+    spec-version:
         runs-on: ubuntu-24.04
         steps:
         - uses: actions/checkout@v4
@@ -23,22 +23,22 @@ jobs:
             TAG=${{ inputs.version }}
             echo "EXPECTED_VERSION=${TAG#v}" >> $GITHUB_ENV
 
-        - name: Get toml version from code
-          id: toml-version
+        - name: Get spec version from code
+          id: spec-version
           run: |
-            echo "app_version=$(head -10 $TOML_FILE | grep version -m 1 | sed 's/"/ /g' | awk '{print $3}')" >> $GITHUB_OUTPUT
+            echo "app_version=$(tail -10 $SPEC_FILE | grep version -m 1 | sed "s/'/ /g" | awk '{print $2}')" >> $GITHUB_OUTPUT
           env:
-            TOML_FILE: ${{ inputs.toml_file }}
+            SPEC_FILE: ${{ inputs.spec_file }}
         
         - name: Display versions
           run: |
-            echo "TOML app version: '${{ steps.toml-version.outputs.app_version }}'"
+            echo "SPEC app version: '${{ steps.spec-version.outputs.app_version }}'"
             echo "Expected version: '$EXPECTED_VERSION'"
 
-        - name: Check toml version
+        - name: Check spec version
           run: |
-            if [[ "${{ steps.toml-version.outputs.app_version }}" != "$EXPECTED_VERSION" ]]; then
-                echo "TOML app version mismatch: ${{ steps.toml-version.outputs.app_version }} != $EXPECTED_VERSION"
+            if [[ "${{ steps.spec-version.outputs.app_version }}" != "$EXPECTED_VERSION" ]]; then
+                echo "SPEC app version mismatch: ${{ steps.spec-version.outputs.app_version }} != $EXPECTED_VERSION"
                 if [[ "$EXPECTED_VERSION" == "" ]]; then
                     echo "This is a pre-release version, so this is expected."
                     exit 0

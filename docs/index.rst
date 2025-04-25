@@ -14,6 +14,7 @@ Shared Workflows's documentation
    version
    rust-version
    toml-version
+   spec-version
    kicad-version
    kicad-release
    docs
