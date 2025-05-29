@@ -37,14 +37,24 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       kicad_sch_path: samples/kicad/sample/sample.kicad_sch
 
-  kicad-release:
+  kicad-release-v8:
     needs: [version, check-kicad-version]
     uses: ./.github/workflows/kicad-release.yml
     with: 
       version: ${{ needs.version.outputs.version }}
       dir: samples/kicad
       name: sample
+      # kibot-version will default to v8
 
+  kicad-release-v9:
+    needs: [version, check-kicad-version]
+    uses: ./.github/workflows/kicad-release.yml
+    with: 
+      version: ${{ needs.version.outputs.version }}
+      dir: samples/kicad
+      name: sample
+      kibot-version: v9
+    
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: version
@@ -55,7 +65,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, kicad-release]
+    needs: [version, docs, kicad-release-v8, kicad-release-v9]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -66,7 +76,7 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, kicad-release]
+    needs: [version, docs, kicad-release-v8, kicad-release-v9]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
