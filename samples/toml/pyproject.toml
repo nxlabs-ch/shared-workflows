@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tx-test-python"
-version = "0.21.0"
+version = "0.22.0"
 description = "A python tool with a GUI to measure and accept transducers on the factory line"
 readme = "README.md"
 requires-python = ">=3.8"
