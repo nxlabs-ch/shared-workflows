@@ -16,6 +16,11 @@ on:
         default: '.'
         required: false
         type: string
+      kibot-version:
+        description: "The version of KiBot to use (v8 or v9), defaults to 'v8'"
+        default: 'v8'
+        required: false
+        type: string
 
 jobs:
   build-artifacts:
@@ -52,8 +57,17 @@ jobs:
           DIR: ${{ inputs.dir }}
           NAME: ${{ inputs.name }}
 
-      - name: Run KiBot
+      - name: Run KiBot v8
+        if: ${{ inputs.kibot-version == 'v8' }}
         uses: INTI-CMNB/KiBot@v2_k8
+        with:
+          config: ${{ inputs.dir }}/config.kibot.yaml
+          schema: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}.kicad_sch
+          dir: output
+
+      - name: Run KiBot v9
+        if: ${{ inputs.kibot-version == 'v9' }}
+        uses: INTI-CMNB/KiBot@v2_k9
         with:
           config: ${{ inputs.dir }}/config.kibot.yaml
           schema: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}.kicad_sch
@@ -71,23 +85,23 @@ jobs:
       - name: Save artifact (all outputs)
         uses: actions/upload-artifact@v4
         with:
-          name: output-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-output-${{ inputs.version }}
           path: output
   
       - name: Save artifact (BOM)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}-bom-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-bom-${{ inputs.version }}
           path: ${{ inputs.name }}-bom-${{ inputs.version }}.csv
 
       - name: Save artifact (Schematic)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}-schematic-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-schematic-${{ inputs.version }}
           path: ${{ inputs.name }}-schematic-${{ inputs.version }}.pdf
 
       - name: Save artifact (Project)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.name }}-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-${{ inputs.version }}
           path: ${{ inputs.name }}-${{ inputs.version }}.tar.gz
