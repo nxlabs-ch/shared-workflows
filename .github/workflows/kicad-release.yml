@@ -85,7 +85,7 @@ jobs:
       - name: Save artifact (all outputs)
         uses: actions/upload-artifact@v4
         with:
-          name: kb${{ inputs.kibot-version }}-output-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-all-${{ inputs.version }}
           path: output
   
       - name: Save artifact (BOM)
@@ -103,5 +103,5 @@ jobs:
       - name: Save artifact (Project)
         uses: actions/upload-artifact@v4
         with:
-          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-${{ inputs.version }}
+          name: kb${{ inputs.kibot-version }}-${{ inputs.name }}-project-${{ inputs.version }}
           path: ${{ inputs.name }}-${{ inputs.version }}.tar.gz
