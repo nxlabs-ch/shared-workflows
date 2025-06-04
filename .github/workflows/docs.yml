@@ -26,34 +26,56 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12.9
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install Sphinx==8.2.1 myst-parser==4.0.1 jinja2
+
       - name: Install additional pip dependencies
         if: "${{ inputs.dependencies != '' }}"
         run: pip install ${{ inputs.dependencies }}
+
       - name: Install additional packages for documentation building
         run: |
           sudo apt-get update && sudo apt-get install -y \
             texlive=2023.20240207-1 \
             texlive-latex-extra=2023.20240207-1 \
             latexmk
+
       - name: Save Version
         run:  echo ${{ inputs.version }} > .version
+
+      - name: Extract project name from conf.py
+        id: project-name
+        run: |
+          PROJECT_NAME=$(python -c "
+          import sys
+          sys.path.insert(0, '${{ inputs.docs-folder }}')
+          try:
+              from conf import project
+              print(project.lower().replace(' ', '-'))
+          except ImportError:
+              print('no-name')
+          ")
+          echo "name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+
       - name: Build documentation
         run: |
           make -C ${{ inputs.docs-folder }} html
           make -C ${{ inputs.docs-folder }} latexpdf
+
       - uses: actions/upload-artifact@v4
         with:
-          name: documentationHTML
+          name: documentation-${{ steps.project-name.outputs.name }}-html-${{ inputs.version }}
           path: docs/_build/html/
+
       - uses: actions/upload-artifact@v4
         with:
-          name: documentation
+          name: documentation-${{ steps.project-name.outputs.name }}-pdf-${{ inputs.version }}
           path: "docs/_build/latex/${{ inputs.pdf-name }}"       
