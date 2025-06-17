@@ -30,6 +30,13 @@ jobs:
         version: ${{ needs.version.outputs.tag }}
         spec_file: samples/spec/test.spec
 
+  check-spec-version-2:
+      needs: version
+      uses: ./.github/workflows/spec-version.yml
+      with: 
+        version: ${{ needs.version.outputs.tag }}
+        spec_file: samples/spec/test2.spec
+
   check-kicad-version:
     needs: version
     uses: ./.github/workflows/kicad-version.yml
