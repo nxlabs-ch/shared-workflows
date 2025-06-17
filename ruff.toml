@@ -1,0 +1,5 @@
+extend-include = ["*.spec"]
+
+[format]
+exclude = ["*.ipynb"]
+quote-style = "preserve"
