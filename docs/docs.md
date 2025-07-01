@@ -13,8 +13,8 @@ The **Build Documentation** workflow `docs.yml` builds a standard Python documen
 
 The workflow will build two artifacts:
 
-1. `documentationHTML` with the documentation in HTML format.
-2. `documentation` with the documentation as a PDF file.
+1. `documentation-<project>-html-<version>` with the documentation in HTML format.
+2. `documentation-<project>-pdf-<version>` with the documentation as a PDF file.
 
 It uses the release version provided as input.
 
@@ -36,3 +36,5 @@ jobs:
       pdf-name: "User-Manual.pdf"
       dependencies: "Sphinx==3.5.4 myst-parser==0.15.2"
 ```
+
+Note: the PDF name will be changed to add the version number, e.g. `User-Manual-1.0.0.pdf`.
