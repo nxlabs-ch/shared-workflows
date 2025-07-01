@@ -75,7 +75,20 @@ jobs:
           name: documentation-${{ steps.project-name.outputs.name }}-html-${{ inputs.version }}
           path: docs/_build/html/
 
+      - name: Rename PDF with version
+        run: |
+          PDF_DIR="${{ inputs.docs-folder }}/_build/latex"
+          ORIGINAL_PDF="${{ inputs.pdf-name }}"
+          # Extract filename without extension
+          PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
+          # Create new filename with version
+          NEW_PDF="${PDF_BASE}-${{ inputs.version }}.pdf"
+          # Rename the PDF file
+          mv "$PDF_DIR/$ORIGINAL_PDF" "$PDF_DIR/$NEW_PDF"
+          echo "new-pdf-name=$NEW_PDF" >> $GITHUB_OUTPUT
+        id: rename-pdf
+
       - uses: actions/upload-artifact@v4
         with:
           name: documentation-${{ steps.project-name.outputs.name }}-pdf-${{ inputs.version }}
-          path: "docs/_build/latex/${{ inputs.pdf-name }}"       
+          path: "${{ inputs.docs-folder }}/_build/latex/${{ steps.rename-pdf.outputs.new-pdf-name }}"
