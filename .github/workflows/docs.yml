@@ -24,21 +24,53 @@ on:
 jobs:
   build-documentation:
     runs-on: ubuntu-24.04
-    container:
-      image: sphinxdoc/sphinx-latexpdf:8.2.1
-      options: --user root
+    # container:
+    #   image: sphinxdoc/sphinx-latexpdf:8.2.1
+    #   options: --user root
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install common Sphinx extensions
-        run: pip install myst-parser==4.0.1 jinja2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install additional pip dependencies
-        if: "${{ inputs.dependencies != '' }}"
-        run: pip install ${{ inputs.dependencies }}
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-      - name: Save Version
-        run:  echo ${{ inputs.version }} > .version
+      - name: Build and run in container
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            sphinxdoc/sphinx-latexpdf:8.2.1 \
+            bash -c "
+              pip install myst-parser==4.0.1 jinja2 sphinx-rtd-theme &&
+              ${{ inputs.dependencies != '' && format('pip install {0} &&', inputs.dependencies) || '' }}
+              echo ${{ inputs.version }} > .version &&
+              make -C ${{ inputs.docs-folder }} html &&
+              make -C ${{ inputs.docs-folder }} latexpdf &&
+            
+              # Rename PDF with version inside container
+              PDF_DIR='${{ inputs.docs-folder }}/_build/latex'
+              ORIGINAL_PDF='${{ inputs.pdf-name }}'
+              PDF_BASE=\$(basename \"\$ORIGINAL_PDF\" .pdf)
+              NEW_PDF=\"\${PDF_BASE}-${{ inputs.version }}.pdf\"
+              mv \"\$PDF_DIR/\$ORIGINAL_PDF\" \"\$PDF_DIR/\$NEW_PDF\"
+              echo \$NEW_PDF > /workspace/new-pdf-name.txt
+             "
+
+      # - name: Install common Sphinx extensions
+      #   run: pip install myst-parser==4.0.1 jinja2
+
+      # - name: Install additional pip dependencies
+      #   if: "${{ inputs.dependencies != '' }}"
+      #   run: pip install ${{ inputs.dependencies }}
+
+      # - name: Save Version
+      #   run:  echo ${{ inputs.version }} > .version
 
       - name: Extract project name from conf.py
         id: project-name
@@ -54,28 +86,34 @@ jobs:
           ")
           echo "name=$PROJECT_NAME" >> $GITHUB_OUTPUT
 
-      - name: Build documentation
+      - name: Get new PDF name
+        id: rename-pdf
         run: |
-          make -C ${{ inputs.docs-folder }} html
-          make -C ${{ inputs.docs-folder }} latexpdf
+          NEW_PDF_NAME=$(cat new-pdf-name.txt)
+          echo "new-pdf-name=$NEW_PDF_NAME" >> $GITHUB_OUTPUT
+
+      # - name: Build documentation
+      #   run: |
+      #     make -C ${{ inputs.docs-folder }} html
+      #     make -C ${{ inputs.docs-folder }} latexpdf
 
       - uses: actions/upload-artifact@v4
         with:
           name: documentation-${{ steps.project-name.outputs.name }}-html-${{ inputs.version }}
           path: docs/_build/html/
 
-      - name: Rename PDF with version
-        run: |
-          PDF_DIR="${{ inputs.docs-folder }}/_build/latex"
-          ORIGINAL_PDF="${{ inputs.pdf-name }}"
-          # Extract filename without extension
-          PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
-          # Create new filename with version
-          NEW_PDF="${PDF_BASE}-${{ inputs.version }}.pdf"
-          # Rename the PDF file
-          mv "$PDF_DIR/$ORIGINAL_PDF" "$PDF_DIR/$NEW_PDF"
-          echo "new-pdf-name=$NEW_PDF" >> $GITHUB_OUTPUT
-        id: rename-pdf
+      # - name: Rename PDF with version
+      #   run: |
+      #     PDF_DIR="${{ inputs.docs-folder }}/_build/latex"
+      #     ORIGINAL_PDF="${{ inputs.pdf-name }}"
+      #     # Extract filename without extension
+      #     PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
+      #     # Create new filename with version
+      #     NEW_PDF="${PDF_BASE}-${{ inputs.version }}.pdf"
+      #     # Rename the PDF file
+      #     mv "$PDF_DIR/$ORIGINAL_PDF" "$PDF_DIR/$NEW_PDF"
+      #     echo "new-pdf-name=$NEW_PDF" >> $GITHUB_OUTPUT
+      #   id: rename-pdf
 
       - uses: actions/upload-artifact@v4
         with:
