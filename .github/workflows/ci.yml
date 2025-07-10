@@ -63,7 +63,7 @@ jobs:
       kibot-version: v9
     
   docs:
-    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || contains(github.ref, 'doc') || contains(github.ref, 'docs')}}
     needs: version
     uses: ./.github/workflows/docs.yml
     with:
