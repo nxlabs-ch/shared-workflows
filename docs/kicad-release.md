@@ -6,7 +6,7 @@ The **KiCad Release** workflow `kicad-release.yml` sets the version and date to 
 
 1. The workflow expects a the `version` output of the `version.yml` workflow.
 2. The workflow expects a KiCad schema file with `name`in the directory `dir` to set the version.
-3. Optionally a kibot version (defaults to v8) to specify the version of kibot to use for the build.
+3. Optionally a kibot version (defaults to v9) to specify the version of kibot to use for the build.
 
 ## Operation
 
@@ -35,3 +35,6 @@ jobs:
       name: schema
       kibot-version: v9
 ```
+
+Note: As of version 0.23.0, the default KiBot version is now v9. v8 is no longer supported as it doubled the build time.
+If you need to use KiBot v8, you must use an earlier version of this workflow.

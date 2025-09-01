@@ -17,8 +17,8 @@ on:
         required: false
         type: string
       kibot-version:
-        description: "The version of KiBot to use (v8 or v9), defaults to 'v8'"
-        default: 'v8'
+        description: "The version of KiBot to use (v9 or future version), defaults to 'v9'"
+        default: 'v9'
         required: false
         type: string
 
@@ -56,14 +56,6 @@ jobs:
           VERSION: ${{ inputs.version }}
           DIR: ${{ inputs.dir }}
           NAME: ${{ inputs.name }}
-
-      - name: Run KiBot v8
-        if: ${{ inputs.kibot-version == 'v8' }}
-        uses: INTI-CMNB/KiBot@v2_k8
-        with:
-          config: ${{ inputs.dir }}/config.kibot.yaml
-          schema: ${{ inputs.dir }}/${{ inputs.name }}/${{ inputs.name }}.kicad_sch
-          dir: output
 
       - name: Run KiBot v9
         if: ${{ inputs.kibot-version == 'v9' }}
