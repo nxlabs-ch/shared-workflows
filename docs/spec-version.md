@@ -4,7 +4,7 @@ The **SPEC Version Check** workflow `spec-version.yml` checks that the SPEC vers
 
 ## Pre-requisites
 
-1. The workflow expects a `.spec` file in the provided `toml_file` variable (including path to) to check the SPEC version
+1. The workflow expects a `.spec` file in the provided `spec_file` variable (including path to) to check the SPEC version
 2. The workflow expects a the `tag` output of the `version.yml` workflow.
 
 ## Operation
@@ -30,5 +30,5 @@ jobs:
     uses: nxlabs-ch/shared-workflows//.github/workflows/spec-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
-      toml_file: my_module/app.spec
+      spec_file: my_module/app.spec
 ```
