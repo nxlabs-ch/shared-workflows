@@ -21,6 +21,15 @@ on:
       pep440:
         description: "The PEP440 compatible version for python packages"
         value: ${{ jobs.prepare-release.outputs.pep440 }}
+      preface_content:
+        description: "The content of the preface file"
+        value: ${{ jobs.prepare-release.outputs.preface_content }}
+      postface_content:
+        description: "The content of the postface file"
+        value: ${{ jobs.prepare-release.outputs.postface_content }}
+      changelog:
+        description: "The generated changelog content"
+        value: ${{ jobs.prepare-release.outputs.changelog }}
 
 jobs:
   prepare-release:
@@ -42,27 +51,33 @@ jobs:
         uses: actions/checkout@v4
   
       - name: Read preface file
-        if: ${{ inputs.preface != '' }}
         id: preface
         run: |
-          {
-            echo 'preface<<EOF'
-            cat ${{ inputs.preface }}
-            echo
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.preface }}" ] && [ -f "${{ inputs.preface }}" ]; then
+            {
+              echo 'preface<<EOF'
+              cat ${{ inputs.preface }}
+              echo
+              echo EOF
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo 'preface=' >> "$GITHUB_OUTPUT"
+          fi
         shell: bash
 
       - name: Read postface file
-        if: ${{ inputs.postface != '' }}
         id: postface
         run: |
-          {
-            echo 'postface<<EOF'
-            cat ${{ inputs.postface }}
-            echo
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.postface }}" ] && [ -f "${{ inputs.postface }}" ]; then
+            {
+              echo 'postface<<EOF'
+              cat ${{ inputs.postface }}
+              echo
+              echo EOF
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo 'postface=' >> "$GITHUB_OUTPUT"
+          fi
         shell: bash
 
       - name: New version/tag as comment in PR
@@ -141,3 +156,6 @@ jobs:
       version: ${{ env.VERSION_NUMBER }}
       tag: ${{ env.NEW_TAG }}
       pep440: ${{ env.PEP440_VERSION_NUMBER }}
+      preface_content: ${{ steps.preface.outputs.preface }}
+      postface_content: ${{ steps.postface.outputs.postface }}
+      changelog: ${{ steps.version-main.outputs.changelog || steps.version-pr.outputs.changelog || '' }}
