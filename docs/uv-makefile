@@ -1,0 +1,16 @@
+BUILDDIR = _build
+
+install:
+	uv venv
+	uv sync
+
+html:
+	uv run sphinx-build -M html . $(BUILDDIR)
+
+latexpdf:
+	uv run sphinx-build -M latexpdf . $(BUILDDIR)
+
+docs: html latexpdf
+
+clean:
+	rm -rf $(BUILDDIR)
