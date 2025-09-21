@@ -1,0 +1,110 @@
+/* Custom styles for task lists */
+
+/* Remove bullet points from task list items */
+ul.contains-task-list {
+    list-style-type: none !important;
+    padding-left: 0 !important;
+}
+
+/* Remove bullet points from nested task list items */
+ul.contains-task-list ul.contains-task-list {
+    list-style-type: none !important;
+    padding-left: 1.5em !important;
+    /* Keep some indentation for nested items */
+}
+
+/* Style the task list items */
+li.task-list-item {
+    list-style-type: none !important;
+    margin: 0.2em 0;
+}
+
+/* AGGRESSIVE FIX FOR NESTED LISTS WITH SPHINX_PDJ_THEME */
+/* Force nested regular bullet lists to display properly - EXCLUDE task lists */
+
+/* Target ul.simple specifically but NOT task lists */
+ul.simple:not(.contains-task-list) {
+    list-style: disc !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+}
+
+ul.simple:not(.contains-task-list) ul:not(.contains-task-list) {
+    list-style: circle !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+}
+
+ul.simple:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) {
+    list-style: square !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+}
+
+/* Ensure list items are visible - but NOT task list items */
+ul.simple:not(.contains-task-list) li:not(.task-list-item) {
+    display: list-item !important;
+    list-style: inherit !important;
+    margin: 0.2em 0 !important;
+}
+
+ul.simple ul li {
+    display: list-item !important;
+    list-style: circle !important;
+    margin: 0.2em 0 !important;
+}
+
+ul.simple ul ul li {
+    display: list-item !important;
+    list-style: square !important;
+    margin: 0.2em 0 !important;
+}
+
+/* Alternative targeting for the specific theme containers */
+.rst-content ul.simple:not(.contains-task-list) {
+    list-style: disc !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+}
+
+.rst-content ul.simple:not(.contains-task-list) ul:not(.contains-task-list) {
+    list-style: circle !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+    display: block !important;
+}
+
+.rst-content ul.simple:not(.contains-task-list) ul:not(.contains-task-list) ul:not(.contains-task-list) {
+    list-style: square !important;
+    margin-left: 1.5em !important;
+    padding-left: 0 !important;
+}
+
+/* Force display of nested elements */
+.rst-content ul.simple li ul {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Mixed lists: when regular bullets are inside task lists */
+.rst-content ul.contains-task-list li:not(.task-list-item) {
+    list-style-type: disc !important;
+    margin-left: 1.5em !important;
+}
+
+.rst-content ul.contains-task-list ul:not(.contains-task-list) {
+    list-style-type: disc !important;
+    padding-left: 1.5em !important;
+}
+
+.rst-content ul.contains-task-list ul:not(.contains-task-list) li {
+    list-style-type: disc !important;
+}
+
+/* Add some spacing between checkbox and text */
+.task-list-item-checkbox {
+    margin-right: 0.5em;
+}
