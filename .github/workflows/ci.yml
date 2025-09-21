@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/toml-version.yml
     with: 
       version: ${{ needs.version.outputs.tag }}
-      toml_file: samples/toml/pyproject.toml
+      toml_file: docs/pyproject.toml
 
   check-spec-version:
       needs: version
@@ -55,15 +55,26 @@ jobs:
     
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
-    needs: version
+    needs: [version, check-toml-version]
     uses: ./.github/workflows/docs.yml
     with:
       version: ${{ needs.version.outputs.version }}
-      pdf-name: "sharedworkflows.pdf"
+      pdf-name: "shared-workflows.pdf"
+      dependencies: "sphinx_pdj_theme==0.7.3"
+
+  uv-docs:
+    needs: [version, check-toml-version]
+    uses: ./.github/workflows/uv-docs.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pdf-name: "shared-workflows.pdf"
+      build-pdf: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+      makefile: "uv-makefile"
+
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, kicad-release-v9]
+    needs: [version, docs, uv-docs, kicad-release-v9]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -74,7 +85,7 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, kicad-release-v9]
+    needs: [version, docs, uv-docs,kicad-release-v9]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}

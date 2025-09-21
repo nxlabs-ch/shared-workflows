@@ -18,9 +18,11 @@ Shared Workflows's documentation
    kicad-version
    kicad-release
    docs
+   uv-docs
    deploy
    gcloud
    pr-change-log
+   task-lists
 
 Indices and tables
 ==================
