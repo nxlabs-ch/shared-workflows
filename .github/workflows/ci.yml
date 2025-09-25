@@ -71,14 +71,32 @@ jobs:
       build-pdf: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
       makefile: "uv-makefile"
 
+  prepare-changes:
+    needs: version
+    runs-on: ubuntu-24.04
+    outputs:
+      changes: ${{ steps.aggregate.outputs.changes }}
+    steps:
+      - name: Aggregate changelog content
+        id: aggregate
+        run: |
+          {
+            echo 'changes<<EOF'
+            echo "${{ needs.version.outputs.preface_content }}"
+            echo "${{ needs.version.outputs.changelog }}"
+            echo "${{ needs.version.outputs.postface_content }}"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, uv-docs, kicad-release-v9]
+    needs: [version, uv-docs, prepare-changes]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
       project: shared-workflows
+      changes: ${{ needs.prepare-changes.outputs.changes }}
     secrets:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}

@@ -16,6 +16,10 @@ on:
         default: artifacts.nxlabs.ch
         required: false
         type: string
+      changes:
+        description: "Description of changes in this version, will go into a changes.md file"
+        required: false
+        type: string
     secrets:
       GCP_PROJECT:
         description: "Google Cloud Project ID"
@@ -43,6 +47,11 @@ jobs:
         run: |
           cd artifacts
           for i in */; do cd "$i" && zip -9 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
+
+      - name: Create changes.md if changes provided
+        if: ${{ inputs.changes != '' }}
+        run: |
+          echo "${{ inputs.changes }}" > artifacts/changes.md
   
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
