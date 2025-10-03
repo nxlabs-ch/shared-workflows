@@ -47,5 +47,5 @@ app = BUNDLE(
     name="Test.app",
     icon=None,
     bundle_identifier=None,
-    version="0.25.0",
+    version="0.25.1",
 )
