@@ -90,7 +90,7 @@ jobs:
 
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     needs: [version, uv-docs, prepare-changes]
     uses: ./.github/workflows/deploy-gs.yml
     with:
