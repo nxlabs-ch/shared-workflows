@@ -56,7 +56,7 @@ jobs:
           if [ -n "${{ inputs.preface }}" ] && [ -f "${{ inputs.preface }}" ]; then
             {
               echo 'preface<<EOF'
-              cat ${{ inputs.preface }}
+              sed -e 's/\\/\\\\/g' -e 's/`/\\`/g' -e 's/"/\\"/g' -e "s/'/\\'/g" -e 's/\$/\\$/g' "${{ inputs.preface }}"
               echo
               echo EOF
             } >> "$GITHUB_OUTPUT"
@@ -71,7 +71,7 @@ jobs:
           if [ -n "${{ inputs.postface }}" ] && [ -f "${{ inputs.postface }}" ]; then
             {
               echo 'postface<<EOF'
-              cat ${{ inputs.postface }}
+              sed -e 's/\\/\\\\/g' -e 's/`/\\`/g' -e 's/"/\\"/g' -e "s/'/\\'/g" -e 's/\$/\\$/g' "${{ inputs.postface }}"
               echo
               echo EOF
             } >> "$GITHUB_OUTPUT"
