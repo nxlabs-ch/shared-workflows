@@ -2,6 +2,10 @@
 
 This is the preface of the release notes that will appear at the beginning in the GitHub release.
 
+This repo reached `1.0.0` status when the fast-forward merge feature in `version.yml` was added.
+It was the last missing feature in the roadmap to `1.0`.
+
+
 ## Testing Markdown Rendering
 
 This is a paragraph with **bold text**, *italic text*, and a [link](https://example.com).
