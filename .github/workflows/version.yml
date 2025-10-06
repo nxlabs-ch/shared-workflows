@@ -28,9 +28,15 @@ on:
       preface_content:
         description: "The content of the preface file"
         value: ${{ jobs.prepare-release.outputs.preface_content }}
+      preface_content_escaped:
+        description: "The content of the preface file, with special characters escaped"
+        value: ${{ jobs.prepare-release.outputs.preface_content_escaped }}
       postface_content:
         description: "The content of the postface file"
         value: ${{ jobs.prepare-release.outputs.postface_content }}
+      postface_content_escaped:
+        description: "The content of the postface file, with special characters escaped"
+        value: ${{ jobs.prepare-release.outputs.postface_content_escaped }}
       changelog:
         description: "The generated changelog content"
         value: ${{ jobs.prepare-release.outputs.changelog }}
@@ -53,34 +59,58 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-  
+
       - name: Read preface file
+        if: ${{ inputs.preface != '' }}
         id: preface
+        run: |
+          {
+            echo 'preface<<EOF'
+            cat ${{ inputs.preface }}
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Read and escape preface file
+        id: preface_escaped
         run: |
           if [ -n "${{ inputs.preface }}" ] && [ -f "${{ inputs.preface }}" ]; then
             {
-              echo 'preface<<EOF'
+              echo 'preface_escaped<<EOF'
               sed -e 's/\\/\\\\/g' -e 's/`/\\`/g' -e 's/"/\\"/g' -e "s/'/\\'/g" -e 's/\$/\\$/g' "${{ inputs.preface }}"
               echo
               echo EOF
             } >> "$GITHUB_OUTPUT"
           else
-            echo 'preface=' >> "$GITHUB_OUTPUT"
+            echo 'preface_escaped=' >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
       - name: Read postface file
+        if: ${{ inputs.postface != '' }}
         id: postface
+        run: |
+          {
+            echo 'postface<<EOF'
+            cat ${{ inputs.postface }}
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Read and escape postface file
+        id: postface_escaped
         run: |
           if [ -n "${{ inputs.postface }}" ] && [ -f "${{ inputs.postface }}" ]; then
             {
-              echo 'postface<<EOF'
+              echo 'postface_escaped<<EOF'
               sed -e 's/\\/\\\\/g' -e 's/`/\\`/g' -e 's/"/\\"/g' -e "s/'/\\'/g" -e 's/\$/\\$/g' "${{ inputs.postface }}"
               echo
               echo EOF
             } >> "$GITHUB_OUTPUT"
           else
-            echo 'postface=' >> "$GITHUB_OUTPUT"
+            echo 'postface_escaped=' >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
@@ -193,5 +223,7 @@ jobs:
       tag: ${{ env.NEW_TAG }}
       pep440: ${{ env.PEP440_VERSION_NUMBER }}
       preface_content: ${{ steps.preface.outputs.preface }}
+      preface_content_escaped: ${{ steps.preface_escaped.outputs.preface_escaped }}
       postface_content: ${{ steps.postface.outputs.postface }}
+      postface_content_escaped: ${{ steps.postface_escaped.outputs.postface_escaped }}
       changelog: ${{ steps.version-main.outputs.changelog || steps.version-pr.outputs.changelog || '' }}
