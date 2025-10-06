@@ -8,6 +8,8 @@ jobs:
     with:
       preface: "release/preface.md"
       postface: "release/postface.md"
+    secrets:
+      FF_MERGE_PAT: ${{ secrets.FF_MERGE_PAT }}
 
   check-rust-version:
     needs: version
