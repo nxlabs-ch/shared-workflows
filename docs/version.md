@@ -10,6 +10,8 @@ The **Semantic Version Management** workflow `version.yml` allows handling autom
 4. You should protect the `main` branch, at minimum with the following rules:
    1. "Require a pull request before merging" and "Require approvals"
    2. "Restrict who can push to matching branches"
+5. You will need a personal access token (PAT) with `repo` scope, stored as a secret named `FF_MERGE_PAT` in your
+   repository settings, in order to be able to fast-forward merge `main` back into `develop` after a release.
 
 Items 1. and 2. are a subset of [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/).
 
@@ -24,6 +26,7 @@ It will do the following:
 2. If it is a push to `main`:
    1. TAG the branch with the new release tag.
    2. Create a GitHub release with the changelog
+   3. Merge `main` back into `develop` with a fast-forward merge.
 3. Provide the current version number and tag as an output:
    1. This is the result of `git describe --tags --dirty`.
    2. For a normal build this will be something like:
