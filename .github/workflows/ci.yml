@@ -85,9 +85,9 @@ jobs:
           {
             echo 'changes<<EOF'
             cat << 'CONTENT_EOF'
-          ${{ needs.version.outputs.preface_content }}
+          ${{ needs.version.outputs.preface_content_escaped }}
           ${{ needs.version.outputs.changelog }}
-          ${{ needs.version.outputs.postface_content }}
+          ${{ needs.version.outputs.postface_content_escaped }}
           CONTENT_EOF
             echo EOF
           } >> "$GITHUB_OUTPUT"
