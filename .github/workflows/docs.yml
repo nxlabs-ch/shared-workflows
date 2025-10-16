@@ -20,12 +20,19 @@ on:
         description: "Additional pip dependencies"
         required: false
         type: string
+      lfs:
+        description: "Whether to pull LFS files, defaults to false"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-documentation:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: ${{ inputs.lfs }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
