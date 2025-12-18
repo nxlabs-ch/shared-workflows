@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: documentation-${{ steps.project-name.outputs.name }}-html-${{ inputs.version }}
-          path: docs/_build/html/
+          path: "${{ inputs.docs-folder }}/_build/html/"
           retention-days: 30
 
       - name: Build PDF documentation
