@@ -45,7 +45,7 @@ jobs:
           pip install Sphinx==8.2.1 myst-parser==4.0.1 jinja2
 
       - name: Install additional pip dependencies
-        if: "${{ inputs.dependencies != '' }}"
+        if: ${{ inputs.dependencies != '' }}
         run: pip install ${{ inputs.dependencies }}
 
       - name: Install additional packages for documentation building
