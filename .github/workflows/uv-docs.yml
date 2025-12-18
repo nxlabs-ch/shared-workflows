@@ -31,6 +31,10 @@ on:
         required: false
         type: boolean
         default: false
+      dependencies:
+        description: "Additional system (apt) dependencies"
+        required: false
+        type: string
 
 jobs:
   build-docs:
@@ -59,6 +63,12 @@ jobs:
            texlive-fonts-recommended \
            texlive-fonts-extra \
            latexmk
+
+      - name: Install additional system dependencies
+        if: ${{ inputs.dependencies != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ inputs.dependencies }}
 
       - name: Create version file
         run: echo "${{ inputs.version }}" > .version

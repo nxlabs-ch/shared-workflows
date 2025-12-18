@@ -72,6 +72,7 @@ jobs:
       pdf-name: "shared-workflows.pdf"
       build-pdf: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
       makefile: "uv-makefile"
+      dependencies: "doxygen" # Install doxygen for API docs generation just for validation that it works
 
   prepare-changes:
     needs: version
