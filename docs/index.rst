@@ -22,6 +22,7 @@ Shared Workflows's documentation
    deploy
    gcloud
    pr-change-log
+   check-format
    task-lists
 
 Indices and tables
