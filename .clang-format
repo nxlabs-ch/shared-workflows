@@ -1,0 +1,35 @@
+# Main style
+BasedOnStyle: Google
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Column limit
+ColumnLimit: 100
+
+# C language specific settings
+Language: C
+
+BreakBeforeBraces: Attach
+PointerAlignment: Right
+AllowShortIfStatementsOnASingleLine: false
+
+# Indent case labels one level from the switch statement
+IndentCaseLabels: true
+
+# Forces arguments to a new line if they don't fit
+AlignAfterOpenBracket: BlockIndent
+# Sets the size of that "new line" indent
+ContinuationIndentWidth: 4
+# Put each argument on its own line for maximum readability
+BinPackParameters: false
+
+# Additional formatting
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignTrailingComments: true
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterReturnType: None
+SpaceBeforeParens: ControlStatements

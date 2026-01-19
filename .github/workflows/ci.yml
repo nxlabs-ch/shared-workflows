@@ -54,7 +54,14 @@ jobs:
       dir: samples/kicad
       name: sample
       kibot-version: v9
-    
+
+  check-format:
+    needs: [version, check-toml-version]
+    uses: ./.github/workflows/clang-format.yml
+    with:
+      clang_format_version: '20'
+      file_types: "'*.c' '*.h'"
+
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: [version, check-toml-version]
