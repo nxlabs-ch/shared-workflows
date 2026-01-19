@@ -1,0 +1,79 @@
+on:
+  workflow_call:
+    inputs:
+      clang_format_version:
+        description: "The major version of clang-format to use"
+        required: false
+        type: string
+        default: "20"
+      file_types:
+        description: "The file types to check formatting for (e.g., '*.c', '*.h')"
+        required: false
+        type: string
+        default: "'*.c' '*.h'"
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install clang-format dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install -y clang-format-${{ inputs.clang_format_version }}
+          # Remove any existing alternatives for clang-format
+          sudo update-alternatives --remove-all clang-format || true
+          # Install the new alternative
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${{ inputs.clang_format_version }} 100
+
+      - name: Verify clang-format version
+        run: |
+          which clang-format
+          clang-format --version
+          # Check that clang-format major version is ${{ inputs.clang_format_version }}
+          CLANG_VERSION=$(clang-format --version | grep -o 'version [0-9]*' | grep -o '[0-9]*')
+          if [ "$CLANG_VERSION" != "${{ inputs.clang_format_version }}" ]; then
+            echo "Error: Expected clang-format version ${{ inputs.clang_format_version }}, but got version $CLANG_VERSION"
+            exit 1
+          fi
+
+      - name: Check .clang-format configuration
+        run: |
+          FILES_TO_LINT=$(git ls-files ${{ inputs.file_types }})
+          
+          # Check if clang-format can parse the configuration file
+          if [ -n "$FILES_TO_LINT" ]; then
+            echo "Validating clang-format configuration..."
+            # Test with a single file to check if config is valid
+            FIRST_FILE=$(echo "$FILES_TO_LINT" | head -n1)
+            if ! clang-format -style=file --dry-run "$FIRST_FILE" > /dev/null 2>&1; then
+              echo "Error: clang-format configuration file is invalid"
+              clang-format -style=file --dry-run "$FIRST_FILE"
+              exit 1
+            fi
+            echo "clang-format configuration is valid."
+          else
+            echo "No files found to validate configuration."
+          fi
+
+      - name: Check code formatting
+        run: |
+          FILES_TO_LINT=$(git ls-files ${{ inputs.file_types }})
+          
+          if [ -z "$FILES_TO_LINT" ]; then
+            echo "No files found to check."
+            exit 0
+          fi
+          
+          FORMAT_DIFF=$(clang-format -style=file -output-replacements-xml $FILES_TO_LINT | grep '<replacement ' || true)
+          if [ -n "$FORMAT_DIFF" ]; then
+            echo "The following files are not properly formatted:"
+            clang-format -style=file -i $FILES_TO_LINT
+            git --no-pager diff
+            exit 1
+          else
+            echo "All files are properly formatted."
+          fi
