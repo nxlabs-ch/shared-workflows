@@ -60,7 +60,6 @@ jobs:
     uses: ./.github/workflows/clang-format.yml
     with:
       clang_format_version: '20'
-      file_types: "'*.c' '*.h'"
 
   docs:
     if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}

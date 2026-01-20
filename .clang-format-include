@@ -1,0 +1,3 @@
+:(exclude)samples/C/excluded/*
+*.h
+*.c

@@ -6,11 +6,11 @@ on:
         required: false
         type: string
         default: "20"
-      file_types:
-        description: "The file types to check formatting for (e.g., '*.c', '*.h')"
+      include_file:
+        description: "A file containing patterns of files to include in the check of formatting"
         required: false
         type: string
-        default: "'*.c' '*.h'"
+        default: .clang-format-include
 
 jobs:
   check:
@@ -42,7 +42,7 @@ jobs:
 
       - name: Check .clang-format configuration
         run: |
-          FILES_TO_LINT=$(git ls-files ${{ inputs.file_types }})
+          FILES_TO_LINT=$(cat ${{ inputs.include_file }} | xargs git ls-files)
           
           # Check if clang-format can parse the configuration file
           if [ -n "$FILES_TO_LINT" ]; then
@@ -61,13 +61,7 @@ jobs:
 
       - name: Check code formatting
         run: |
-          FILES_TO_LINT=$(git ls-files ${{ inputs.file_types }})
-          
-          if [ -z "$FILES_TO_LINT" ]; then
-            echo "No files found to check."
-            exit 0
-          fi
-          
+          FILES_TO_LINT=$(cat ${{ inputs.include_file }} | xargs git ls-files)
           FORMAT_DIFF=$(clang-format -style=file -output-replacements-xml $FILES_TO_LINT | grep '<replacement ' || true)
           if [ -n "$FORMAT_DIFF" ]; then
             echo "The following files are not properly formatted:"
