@@ -25,14 +25,25 @@ on:
         required: false
         type: boolean
         default: false
+      submodules:
+        description: "Whether to pull git submodules (false|true|recursive), defaults to false"
+        required: false
+        type: string
+        default: 'false'
+    secrets:
+      ssh-key:
+        description: "SSH private key to use for checking out private submodules"
+        required: false
 
 jobs:
   build-documentation:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
+          ssh-key: ${{ secrets.ssh-key }}
           lfs: ${{ inputs.lfs }}
+          submodules: ${{ inputs.submodules }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
