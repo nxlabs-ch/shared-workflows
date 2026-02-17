@@ -27,7 +27,7 @@ jobs:
 
   check-kicad-version:
     needs: version
-    uses: nxlabs-ch/shared-workflows//.github/workflows/kicad-version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/kicad-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       kicad_sch_path: my_schema/my_schema.kicad_sch

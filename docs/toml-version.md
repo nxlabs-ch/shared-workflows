@@ -27,7 +27,7 @@ jobs:
 
   check-toml-version:
     needs: version
-    uses: nxlabs-ch/shared-workflows//.github/workflows/toml-version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/toml-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       toml_file: my_module/pyproject.toml
