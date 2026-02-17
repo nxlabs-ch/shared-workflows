@@ -46,6 +46,14 @@ jobs:
       version: ${{ needs.version.outputs.tag }}
       kicad_sch_path: samples/kicad/sample/sample.kicad_sch
 
+  check-c-version:
+    needs: version
+    uses: ./.github/workflows/c-version.yml
+    with: 
+      version: ${{ needs.version.outputs.tag }}
+      header_file: samples/C/version.h
+      version_define: LIB_VERSION
+
   kicad-release-v9:
     needs: [version, check-kicad-version]
     uses: ./.github/workflows/kicad-release.yml

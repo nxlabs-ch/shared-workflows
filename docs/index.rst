@@ -12,6 +12,7 @@ Shared Workflows's documentation
 
    introduction
    version
+   c-version
    rust-version
    toml-version
    spec-version
