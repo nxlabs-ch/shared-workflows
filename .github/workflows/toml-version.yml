@@ -26,7 +26,7 @@ jobs:
         - name: Get toml version from code
           id: toml-version
           run: |
-            echo "app_version=$(head -10 $TOML_FILE | grep version -m 1 | sed 's/"/ /g' | awk '{print $3}')" >> $GITHUB_OUTPUT
+            echo "app_version=$(head -n 10 $TOML_FILE | grep version -m 1 | sed 's/"/ /g' | awk '{print $3}')" >> $GITHUB_OUTPUT
           env:
             TOML_FILE: ${{ inputs.toml_file }}
         

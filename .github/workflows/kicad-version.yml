@@ -26,7 +26,7 @@ jobs:
         - name: Get KiCad version from source
           id: kicad-version
           run: |
-            echo "schema_version=$(head -15 $KICAD_SCH_PATH | grep rev | sed 's/"/ /g' | awk '{print $2}')" >> $GITHUB_OUTPUT
+            echo "schema_version=$(head -n 15 $KICAD_SCH_PATH | grep rev | sed 's/"/ /g' | awk '{print $2}')" >> $GITHUB_OUTPUT
           env:
             KICAD_SCH_PATH: ${{ inputs.kicad_sch_path }}
         
