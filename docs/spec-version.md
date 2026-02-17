@@ -27,7 +27,7 @@ jobs:
 
   check-spec-version:
     needs: version
-    uses: nxlabs-ch/shared-workflows//.github/workflows/spec-version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/spec-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       spec_file: my_module/app.spec
