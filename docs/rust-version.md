@@ -27,7 +27,7 @@ jobs:
 
   check-rust-version:
     needs: version
-    uses: nxlabs-ch/shared-workflows//.github/workflows/rust-version.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/rust-version.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       cargo_toml_dir: my_module

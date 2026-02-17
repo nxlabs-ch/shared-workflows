@@ -28,7 +28,7 @@ jobs:
 
   kicad-release:
     needs: version
-    uses: nxlabs-ch/shared-workflows//.github/workflows/kicad-release.yml@main
+    uses: nxlabs-ch/shared-workflows/.github/workflows/kicad-release.yml@main
     with: 
       version: ${{ needs.version.outputs.tag }}
       dir: my_project
