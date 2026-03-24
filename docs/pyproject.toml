@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shared-workflows"
-version = "1.7.0"
-description = "Noveto Processes and Toolchains documentation"
+version = "1.8.0"
+description = "Reusable workflows for GitHub Actions"
 authors = [
     {name = "NXLabs", email = "info@nxlabs.com"},
 ]

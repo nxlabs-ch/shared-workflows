@@ -70,7 +70,10 @@ jobs:
       clang_format_version: '20'
 
   docs:
-    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+    # Disabled since taking more than 10 minutes.
+    # Also deprecated in favor of `uv-docs.yml` which is faster.
+    if: false
+    # if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
     needs: [version, check-toml-version]
     uses: ./.github/workflows/docs.yml
     with:

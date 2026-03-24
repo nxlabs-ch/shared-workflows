@@ -17,6 +17,12 @@ Items 1. and 2. are a subset of [GitFlow](https://nvie.com/posts/a-successful-gi
 
 ## Operation
 
+Inputs:
+
+- `preface`: The file path whose content to use as preface for the release notes, in markdown format.
+- `postface`: The file path whose content to use as postface for the release notes, in markdown format.
+- `tag_prefix`: A prefix to the tag name (default: `v`).
+
 You should run `version` as the first job in your workflow.
 It will do the following:
 
