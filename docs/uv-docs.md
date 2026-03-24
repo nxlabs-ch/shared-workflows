@@ -1,6 +1,6 @@
 # Build Documentation (UV version)
 
-The **Build Documentation** workflow `docs.yml` builds a standard Python documentation.
+The **Build Documentation** workflow `uv-docs.yml` builds a standard Python documentation.
 
 ## Pre-requisites
 
