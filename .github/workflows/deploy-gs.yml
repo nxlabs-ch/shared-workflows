@@ -43,7 +43,17 @@ jobs:
         with:
           path: artifacts
 
+      - name: Check for artifacts
+        id: check_artifacts
+        run: |
+          if [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "has_artifacts=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_artifacts=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Zip each artifact again
+        if: steps.check_artifacts.outputs.has_artifacts == 'true'
         run: |
           cd artifacts
           # download-artifact places a single artifact's files directly at path/ root,
@@ -76,6 +86,7 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
 
       - name: Upload to Google Cloud Storage
+        if: steps.check_artifacts.outputs.has_artifacts == 'true'
         run: |
           gsutil cp -r artifacts/* \
             gs://${{ inputs.bucket}}/${{ inputs.project}}/${{ inputs.version }}/
