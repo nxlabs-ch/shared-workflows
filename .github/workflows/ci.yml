@@ -137,7 +137,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, uv-docs, prepare-changes]
+    needs: [version, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -149,7 +149,7 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, docs, uv-docs,kicad-release-v9]
+    needs: [version, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
