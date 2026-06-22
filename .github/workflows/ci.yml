@@ -8,6 +8,7 @@ jobs:
     with:
       preface: "release/preface.md"
       postface: "release/postface.md"
+      build_offset: -10
     secrets:
       FF_MERGE_PAT: ${{ secrets.FF_MERGE_PAT }}
 
