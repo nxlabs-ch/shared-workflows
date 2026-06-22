@@ -17,12 +17,33 @@ jobs:
         with:
           path: artifacts
 
+      - name: Check for artifacts
+        id: check_artifacts
+        run: |
+          if [ -z "$(ls -A artifacts 2>/dev/null)" ]; then
+            echo "has_artifacts=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_artifacts=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Zip each artifact again
+        if: steps.check_artifacts.outputs.has_artifacts == 'true'
         run: |
           cd artifacts
+          # download-artifact places a single artifact's files directly at path/ root,
+          # but multiple artifacts each get their own path/<artifact-name>/ subdirectory.
+          # Normalise to always have subdirectories so the zip loop below works in both cases.
+          for f in *; do
+            if [ -f "$f" ]; then
+              dir="${f%%.*}"
+              mkdir -p "$dir"
+              mv "$f" "$dir/"
+            fi
+          done
           for i in */; do cd "$i" && zip -9 -r "../${i%/}.zip" "." && cd .. && rm -rf "$i" & done; wait
 
       - name: Upload to release
+        if: steps.check_artifacts.outputs.has_artifacts == 'true'
         uses: svenstaro/upload-release-action@2.6.1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
