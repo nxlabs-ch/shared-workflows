@@ -40,6 +40,16 @@ on:
         description: "Additional system (apt) dependencies"
         required: false
         type: string
+      env:
+        description: "Additional environment variables for the build steps, as newline-separated KEY=VALUE pairs"
+        required: false
+        type: string
+        default: ''
+      artifact-suffix:
+        description: "Suffix (without leading '-') appended to the uploaded HTML artifact name and the PDF filename, to distinguish multiple builds of the same version (e.g. from a matrix)"
+        required: false
+        type: string
+        default: ''
     secrets:
       ssh-key:
         description: "SSH private key to use for checking out private submodules"
@@ -81,6 +91,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ${{ inputs.dependencies }}
 
+      - name: Set additional environment variables
+        if: ${{ inputs.env != '' }}
+        run: echo "${{ inputs.env }}" >> "$GITHUB_ENV"
+
+      - name: Compute artifact suffix
+        id: suffix
+        run: |
+          if [ -n "${{ inputs.artifact-suffix }}" ]; then
+            echo "value=-${{ inputs.artifact-suffix }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create version file
         run: echo "${{ inputs.version }}" > .version
 
@@ -116,7 +139,7 @@ jobs:
       - name: Upload HTML documentation
         uses: actions/upload-artifact@v7
         with:
-          name: documentation-${{ steps.project-name.outputs.name }}-html-${{ inputs.version }}
+          name: documentation-${{ steps.project-name.outputs.name }}${{ steps.suffix.outputs.value }}-html-${{ inputs.version }}
           path: "${{ inputs.docs-folder }}/_build/html/"
           retention-days: 30
 
@@ -132,7 +155,7 @@ jobs:
           # Extract filename without extension
           PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
           # Create new filename with version
-          NEW_PDF="${PDF_BASE}-${{ inputs.version }}.pdf"
+          NEW_PDF="${PDF_BASE}${{ steps.suffix.outputs.value }}-${{ inputs.version }}.pdf"
           # Rename the PDF file
           mv "$PDF_DIR/$ORIGINAL_PDF" "$PDF_DIR/$NEW_PDF"
           echo "new-pdf-name=$NEW_PDF" >> $GITHUB_OUTPUT
@@ -142,5 +165,5 @@ jobs:
         if: ${{ inputs.build-pdf }}
         uses: actions/upload-artifact@v7
         with:
-          name: documentation-${{ steps.project-name.outputs.name }}-pdf-${{ inputs.version }}
+          name: documentation-${{ steps.project-name.outputs.name }}${{ steps.suffix.outputs.value }}-pdf-${{ inputs.version }}
           path: "${{ inputs.docs-folder }}/_build/latex/${{ steps.rename-pdf.outputs.new-pdf-name }}"
