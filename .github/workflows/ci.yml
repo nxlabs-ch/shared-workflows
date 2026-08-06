@@ -117,7 +117,7 @@ jobs:
 
   prepare-changes:
     needs: version
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       changes: ${{ steps.aggregate.outputs.changes }}
     steps:

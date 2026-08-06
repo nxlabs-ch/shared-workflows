@@ -35,7 +35,7 @@ jobs:
     uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main
 
   check-my-version:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: version
     steps:
       - uses: actions/checkout@v6
