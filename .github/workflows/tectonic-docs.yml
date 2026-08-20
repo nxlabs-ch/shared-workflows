@@ -220,10 +220,11 @@ jobs:
             TEX_FILE="${CANDIDATES[0]}"
           fi
 
-          # Sphinx only emits `fontspec` when `latex_engine` is xelatex. Tectonic is a XeTeX
+          # Sphinx only loads `fontspec` when `latex_engine` is xelatex. Tectonic is a XeTeX
           # engine: it compiles pdflatex-targeted sources without failing, but silently drops
           # every non-ASCII glyph. Refuse rather than publish a quietly broken PDF.
-          if ! grep -q 'fontspec' "$TEX_FILE"; then
+          # Only the preamble is searched: the document body may well mention the package.
+          if ! sed -n '/\\begin{document}/q;p' "$TEX_FILE" | grep -q '^\\usepackage{fontspec}'; then
             echo "::error::$TEX_FILE was generated for pdflatex. Set latex_engine = \"xelatex\" in $DOCS_FOLDER/conf.py."
             exit 1
           fi

@@ -13,6 +13,8 @@ latexpdf:
 # Used by `tectonic-docs.yml`, which compiles the generated sources itself. Tectonic is a
 # XeTeX engine, so the engine is overridden here rather than in `conf.py`: this repository
 # also builds a PDF through `uv-docs.yml`, whose `latexpdf` target above needs pdflatex.
+# A project using only `tectonic-docs.yml` sets `latex_engine = "xelatex"` in `conf.py`
+# instead, and its `latex` target needs no override.
 latex:
 	uv run sphinx-build -M latex . $(BUILDDIR) -D latex_engine=xelatex
 

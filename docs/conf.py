@@ -94,20 +94,27 @@ html_js_files = [
 
 # -- Options for LaTeX output ------------------------------------------------
 
+# `latex_engine` is deliberately left at its pdflatex default: this repository builds
+# its PDF both ways, through `uv-docs.yml` (pdflatex) and `tectonic-docs.yml` (XeTeX).
+# The `latex` target in `uv-makefile` passes `-D latex_engine=xelatex` for the Tectonic
+# build. Setting it here instead would break the pdflatex one, which has no XeTeX binary.
+# A project using only `tectonic-docs.yml` should set `latex_engine = "xelatex"` here.
+
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     "papersize": "a4paper",
-    # Do not decorate admonition titles with FontAwesome icons: `fontawesome5.sty` only
-    # ships in `texlive-fonts-extra`, which the build no longer installs. Pinning this
-    # keeps the PDF identical whatever TeX distribution builds it.
+    # Sphinx >= 7.4 decorates admonition titles with icons from `fontawesome5`
+    # whenever that package happens to be installed. Tectonic's bundle ships it
+    # but not the `expl3` it depends on, which is a hard error; `none` disables
+    # the icons and keeps the build independent of what TeX files are around.
     "sphinxsetup": "iconpackage=none",
     "preamble": r"""
         \makeatletter
         \fancypagestyle{normal}{
             \fancyhead[RO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
             \fancyhead[LE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
-            \fancyfoot[LO, RE]{{\scriptsize (c) 2025 Copyright NxLabs, all rights reserved.}}
+            \fancyfoot[LO, RE]{{\scriptsize (c) 2026 Copyright NxLabs, all rights reserved.}}
         }
         \makeatother
         
@@ -135,67 +142,57 @@ latex_documents = [
 
 
 def setup(app):
-    """Setup function for custom LaTeX task list handling."""
+    r"""Render MyST task lists as LaTeX checkbox items.
+
+    The `tasklist` extension emits checkboxes as raw HTML, which Sphinx's LaTeX
+    writer discards (`visit_raw` only keeps nodes whose format is `latex`), and
+    Sphinx has no task-list support of its own. Without this the checkboxes
+    disappear from the PDFs, silently and without a build warning.
+
+    So the list is re-created as an `itemize` whose item labels are the
+    \emptybox / \checkedbox macros defined in `latex_elements["preamble"]`.
+    """
+    from docutils import nodes
     from sphinx.writers.latex import LaTeXTranslator
 
-    # Store the original methods
-    original_visit_bullet_list = LaTeXTranslator.visit_bullet_list
-    original_depart_bullet_list = LaTeXTranslator.depart_bullet_list
-    original_visit_list_item = LaTeXTranslator.visit_list_item
-    original_depart_list_item = LaTeXTranslator.depart_list_item
+    def has_class(node, name):
+        return name in node.get("classes", [])
 
-    def visit_bullet_list_custom(self, node):
-        # Check if this is a task list
-        if "contains-task-list" in node.get("classes", []):
-            self.body.append("\\begin{itemize}\n")
-            self.context.append("\\end{itemize}\n")
-        else:
-            # Use original behavior for regular bullet lists
-            original_visit_bullet_list(self, node)
-
-    def depart_bullet_list_custom(self, node):
-        if "contains-task-list" in node.get("classes", []):
-            self.body.append(self.context.pop())
-        else:
-            original_depart_bullet_list(self, node)
-
-    def visit_list_item_custom(self, node):
-        # Check if this is a task list item
-        if "task-list-item" in node.get("classes", []):
-            # Look for a raw HTML element containing the checkbox
-            is_checked = False
-
-            # Search through all descendants for a raw element
-            for child in node.traverse():
-                if hasattr(child, 'tagname') and child.tagname == 'raw':
-                    if child.get('format') == 'html':
-                        # Parse the raw HTML content to look for checkbox
-                        raw_content = str(child.astext())
-                        if 'type="checkbox"' in raw_content:
-                            # Check if the checkbox is checked
-                            is_checked = 'checked="checked"' in raw_content
-                            break
-
-            # Render the appropriate checkbox
-            if is_checked:
-                self.body.append("\\item[\\checkedbox] ")
+    class TaskListLaTeXTranslator(LaTeXTranslator):
+        def visit_bullet_list(self, node):
+            # Unlike the base implementation this ignores `compact_list`, which
+            # keeps the output identical to what this override produced before.
+            if has_class(node, "contains-task-list"):
+                self.body.append("\\begin{itemize}\n")
             else:
-                self.body.append("\\item[\\emptybox] ")
-        else:
-            # Use original behavior for regular list items
-            original_visit_list_item(self, node)
+                super().visit_bullet_list(node)
 
-    def depart_list_item_custom(self, node):
-        if "task-list-item" in node.get("classes", []):
-            self.body.append("\n")
-        else:
-            original_depart_list_item(self, node)
+        def depart_bullet_list(self, node):
+            if has_class(node, "contains-task-list"):
+                self.body.append("\\end{itemize}\n")
+            else:
+                super().depart_bullet_list(node)
 
-    # Override the methods
-    LaTeXTranslator.visit_bullet_list = visit_bullet_list_custom
-    LaTeXTranslator.depart_bullet_list = depart_bullet_list_custom
-    LaTeXTranslator.visit_list_item = visit_list_item_custom
-    LaTeXTranslator.depart_list_item = depart_list_item_custom
+        def visit_list_item(self, node):
+            if not has_class(node, "task-list-item"):
+                super().visit_list_item(node)
+                return
+            checked = False
+            for raw in node.findall(nodes.raw):
+                if raw.get("format") == "html" and 'type="checkbox"' in raw.astext():
+                    checked = 'checked="checked"' in raw.astext()
+                    break
+            self.body.append(
+                "\\item[\\checkedbox] " if checked else "\\item[\\emptybox] "
+            )
+
+        def depart_list_item(self, node):
+            if has_class(node, "task-list-item"):
+                self.body.append("\n")
+            else:
+                super().depart_list_item(node)
+
+    app.set_translator("latex", TaskListLaTeXTranslator, override=True)
 
     return {
         "version": "1.0",

@@ -4,17 +4,27 @@
   "words": [
     "checkedbox",
     "emptybox",
+    "expl",
+    "fontawesome",
+    "fontpkg",
+    "fontspec",
+    "iconpackage",
     "ipynb",
     "kicad",
     "latexmk",
     "latexpdf",
     "noveto",
     "nxlabs",
+    "pdflatex",
+    "pipefail",
     "pyproject",
+    "sphinxsetup",
     "tectonic",
     "texlive",
     "toctree",
-    "venv"
+    "venv",
+    "xelatex",
+    "xetex"
   ],
   "ignoreRegExpList": [
     "\\blib\\w*\\b"
