@@ -40,6 +40,16 @@ on:
         description: "Additional system (apt) dependencies"
         required: false
         type: string
+      latex-packages:
+        description: "Additional apt packages to install alongside the LaTeX toolchain, space separated (e.g. 'texlive-fonts-extra')"
+        required: false
+        type: string
+        default: ''
+      timeout-minutes:
+        description: "Maximum duration of the documentation build job, in minutes"
+        required: false
+        type: number
+        default: 30
       env:
         description: "Additional environment variables for the build steps, as newline-separated KEY=VALUE pairs"
         required: false
@@ -58,6 +68,7 @@ on:
 jobs:
   build-docs:
     runs-on: ubuntu-24.04
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -76,20 +87,58 @@ jobs:
 
       - name: Install system dependencies for LaTeX
         if: ${{ inputs.build-pdf }}
+        timeout-minutes: 15
+        env:
+          # Passed through the environment rather than interpolated, so that a caller's
+          # input cannot inject shell code.
+          EXTRA_PACKAGES: ${{ inputs.latex-packages }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-           texlive-latex-recommended \
-           texlive-latex-extra \
-           texlive-fonts-recommended \
-           texlive-fonts-extra \
-           latexmk
+          set -euo pipefail
+          # Word splitting of APT_OPTS and EXTRA_PACKAGES is intentional below.
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+          for attempt in 1 2 3; do
+            # shellcheck disable=SC2086
+            sudo apt-get $APT_OPTS update && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "apt-get update failed after 3 attempts" >&2
+              exit 1
+            fi
+            echo "apt-get update failed (attempt $attempt), retrying" >&2
+            sleep $((attempt * 15))
+          done
+          # shellcheck disable=SC2086
+          sudo apt-get $APT_OPTS install -y --no-install-recommends \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            tex-gyre \
+            latexmk \
+            $EXTRA_PACKAGES
 
       - name: Install additional system dependencies
         if: ${{ inputs.dependencies != '' }}
+        timeout-minutes: 15
+        env:
+          # Passed through the environment rather than interpolated, so that a caller's
+          # input cannot inject shell code.
+          PACKAGES: ${{ inputs.dependencies }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ inputs.dependencies }}
+          set -euo pipefail
+          # Word splitting of APT_OPTS and PACKAGES is intentional below.
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+          for attempt in 1 2 3; do
+            # shellcheck disable=SC2086
+            sudo apt-get $APT_OPTS update && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "apt-get update failed after 3 attempts" >&2
+              exit 1
+            fi
+            echo "apt-get update failed (attempt $attempt), retrying" >&2
+            sleep $((attempt * 15))
+          done
+          # No --no-install-recommends here: callers pass arbitrary packages and may rely on recommends.
+          # shellcheck disable=SC2086
+          sudo apt-get $APT_OPTS install -y $PACKAGES
 
       - name: Set additional environment variables
         if: ${{ inputs.env != '' }}

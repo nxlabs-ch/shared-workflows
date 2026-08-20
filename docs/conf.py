@@ -98,6 +98,10 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     "papersize": "a4paper",
+    # Do not decorate admonition titles with FontAwesome icons: `fontawesome5.sty` only
+    # ships in `texlive-fonts-extra`, which the build no longer installs. Pinning this
+    # keeps the PDF identical whatever TeX distribution builds it.
+    "sphinxsetup": "iconpackage=none",
     "preamble": r"""
         \makeatletter
         \fancypagestyle{normal}{
