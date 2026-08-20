@@ -149,7 +149,12 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, tectonic-docs, prepare-changes, kicad-release-v9]
+    # Both docs jobs gate this: `tectonic-docs` produces the canonical PDF, and
+    # `uv-docs` is kept for backward compatibility, so every release proves it still
+    # builds. Removing either is not cosmetic — the deploy workflows download every
+    # artifact in the run with no name filter, so a job left out of `needs` still has
+    # its artifacts published, just nondeterministically.
+    needs: [version, tectonic-docs, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -161,7 +166,12 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, tectonic-docs, prepare-changes, kicad-release-v9]
+    # Both docs jobs gate this: `tectonic-docs` produces the canonical PDF, and
+    # `uv-docs` is kept for backward compatibility, so every release proves it still
+    # builds. Removing either is not cosmetic — the deploy workflows download every
+    # artifact in the run with no name filter, so a job left out of `needs` still has
+    # its artifacts published, just nondeterministically.
+    needs: [version, tectonic-docs, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
