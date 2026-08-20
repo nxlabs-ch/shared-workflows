@@ -155,9 +155,15 @@ whole job budget.
 
 ```bash
 brew install tectonic
-make -C docs latex
+make -f uv-makefile -C docs latex
 tectonic -X compile docs/_build/latex/<name>.tex --outdir docs/_build/latex
 ```
+
+`-f uv-makefile` is not optional. The stock `docs/Makefile` routes unknown targets straight to
+`sphinx-build` without `-D latex_engine=xelatex`, and this repository leaves `latex_engine` at its
+pdflatex default in `conf.py`. The sources it generates therefore load no `fontspec`, Tectonic
+compiles them without complaining, and every non-ASCII glyph is dropped from the PDF. CI refuses
+that output; a local build has no such guard, so the wrong makefile fails silently.
 
 Using the same engine locally and in CI removes a class of "renders on my machine, breaks in CI"
 problems that a local MacTeX / CI TeX Live split quietly creates.
