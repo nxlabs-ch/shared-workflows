@@ -60,20 +60,21 @@ It uses the release version provided as input.
 
 Inputs:
 
-| Input              | Type    | Default    | Description                                                                                     |
-| ------------------ | ------- | ---------- | ----------------------------------------------------------------------------------------------- |
-| `version`          | string  | (required) | Version number for the documentation.                                                           |
-| `pdf-name`         | string  | (required) | Name of the PDF file to generate.                                                               |
-| `build-pdf`        | boolean | `true`     | Whether to build the PDF. Much faster when disabled.                                            |
-| `docs-folder`      | string  | `docs`     | Path to the docs folder from the root of the project.                                           |
-| `makefile`         | string  | `Makefile` | The makefile to use.                                                                            |
-| `lfs`              | boolean | `false`    | Whether to pull LFS files.                                                                      |
-| `submodules`       | string  | `'false'`  | Whether to pull git submodules (`false`, `true` or `recursive`).                                |
-| `dependencies`     | string  | `''`       | Additional system (apt) dependencies, space separated.                                          |
-| `tectonic-version` | string  | `0.17.0`   | The Tectonic release to install.                                                                |
-| `timeout-minutes`  | number  | `30`       | Maximum duration of the build job. Raise it for genuinely long builds.                          |
-| `env`              | string  | `''`       | Additional environment variables for the build steps, as newline separated `KEY=VALUE` pairs.   |
-| `artifact-suffix`  | string  | `''`       | Suffix appended to the uploaded HTML artifact name and the PDF filename, to distinguish builds. |
+| Input                 | Type    | Default    | Description                                                                                                                        |
+| --------------------- | ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `version`             | string  | (required) | Version number for the documentation.                                                                                              |
+| `pdf-name`            | string  | (required) | Name of the PDF file to generate.                                                                                                  |
+| `build-pdf`           | boolean | `true`     | Whether to build the PDF. Much faster when disabled.                                                                               |
+| `docs-folder`         | string  | `docs`     | Path to the docs folder from the root of the project.                                                                              |
+| `makefile`            | string  | `Makefile` | The makefile to use.                                                                                                               |
+| `lfs`                 | boolean | `false`    | Whether to pull LFS files.                                                                                                         |
+| `submodules`          | string  | `'false'`  | Whether to pull git submodules (`false`, `true` or `recursive`).                                                                   |
+| `dependencies`        | string  | `''`       | Additional system (apt) dependencies, space separated.                                                                             |
+| `tectonic-version`    | string  | `0.17.0`   | The Tectonic release to install.                                                                                                   |
+| `timeout-minutes`     | number  | `30`       | Maximum duration of the build job. Raise it for genuinely long builds.                                                             |
+| `pdf-timeout-minutes` | number  | `20`       | Maximum duration of the PDF build step, which bounds the Tectonic compile and its bundle download.                                 |
+| `env`                 | string  | `''`       | Additional environment variables for the build steps, as newline separated `KEY=VALUE` pairs.                                      |
+| `artifact-suffix`     | string  | `''`       | Suffix appended to the uploaded HTML artifact name and the PDF filename, to distinguish builds. Only `[A-Za-z0-9._-]` is accepted. |
 
 The provided version will be written in a `.version` file at the root of the repository.
 You may/should use it to determine the version of the project/documentation.
@@ -146,7 +147,9 @@ The cache directory is pinned explicitly through `TECTONIC_CACHE_DIR`; Tectonic'
 is platform dependent.
 
 A cold cache still needs network access, so the failure mode is shrunk rather than eliminated —
-which is why the job keeps a `timeout-minutes`.
+which is why the PDF step carries its own `pdf-timeout-minutes` bound in addition to the job-wide
+`timeout-minutes`. A stalled bundle fetch therefore fails the step early instead of consuming the
+whole job budget.
 
 ## Local builds
 

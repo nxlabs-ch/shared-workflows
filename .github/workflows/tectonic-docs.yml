@@ -50,6 +50,11 @@ on:
         required: false
         type: number
         default: 30
+      pdf-timeout-minutes:
+        description: "Maximum duration of the PDF build step, in minutes. Bounds the Tectonic compile, which downloads the TeX bundle from the network on a cache miss. Kept below the job timeout so a stalled fetch fails fast; raise it for documents that legitimately take longer to typeset"
+        required: false
+        type: number
+        default: 20
       env:
         description: "Additional environment variables for the build steps, as newline-separated KEY=VALUE pairs"
         required: false
@@ -226,6 +231,10 @@ jobs:
       - name: Build PDF documentation
         if: ${{ inputs.build-pdf }}
         id: build-pdf
+        # `tectonic -X compile` fetches the TeX bundle from the network whenever the cache
+        # misses, so this step is bounded like every other network-touching one. Without it
+        # a stalled fetch consumes the whole job budget before anything reports a failure.
+        timeout-minutes: ${{ inputs.pdf-timeout-minutes }}
         env:
           # Passed through the environment rather than interpolated, so that a caller's
           # input cannot inject shell code.
