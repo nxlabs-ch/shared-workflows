@@ -18,7 +18,7 @@ Every merge to `main` produces an annotated tag and a GitHub release, numbered `
 the types of the commits it contains. Both refs below are supported, and the choice is a trade-off:
 
 ``` yaml
-uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@v1.12.0   # pinned
+uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@v1.13.0   # pinned
 uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main      # tracks head
 ```
 
