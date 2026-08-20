@@ -24,6 +24,7 @@ Shared Workflows's documentation
    kicad-release
    docs
    uv-docs
+   tectonic-docs
    deploy
    gcloud
    pr-change-log

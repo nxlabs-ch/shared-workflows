@@ -21,7 +21,7 @@ The workflow will check the JSON version against the `tag` and:
 
 Example:
 
-```json
+```yaml
 jobs:
   version:
     uses: nxlabs-ch/shared-workflows/.github/workflows/version.yml@main

@@ -106,8 +106,20 @@ jobs:
       dependencies: "sphinx_pdj_theme==0.7.3"
 
   uv-docs:
+    # Maintained but you should use `tectonic-docs.yml` instead, which is faster.
     needs: [version, check-toml-version]
     uses: ./.github/workflows/uv-docs.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pdf-name: "shared-workflows.pdf"
+      build-pdf: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+      makefile: "uv-makefile"
+      artifact-suffix: "uv"
+      dependencies: "doxygen" # Install doxygen for API docs generation just for validation that it works
+
+  tectonic-docs:
+    needs: [version, check-toml-version]
+    uses: ./.github/workflows/tectonic-docs.yml
     with:
       version: ${{ needs.version.outputs.version }}
       pdf-name: "shared-workflows.pdf"
@@ -137,7 +149,12 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [version, uv-docs, prepare-changes, kicad-release-v9]
+    # Both docs jobs gate this: `tectonic-docs` produces the canonical PDF, and
+    # `uv-docs` is kept for backward compatibility, so every release proves it still
+    # builds. Removing either is not cosmetic — the deploy workflows download every
+    # artifact in the run with no name filter, so a job left out of `needs` still has
+    # its artifacts published, just nondeterministically.
+    needs: [version, tectonic-docs, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-gs.yml
     with:
       version: ${{ needs.version.outputs.version }}
@@ -149,7 +166,12 @@ jobs:
 
   release:
     if: github.ref == 'refs/heads/main'
-    needs: [version, uv-docs, prepare-changes, kicad-release-v9]
+    # Both docs jobs gate this: `tectonic-docs` produces the canonical PDF, and
+    # `uv-docs` is kept for backward compatibility, so every release proves it still
+    # builds. Removing either is not cosmetic — the deploy workflows download every
+    # artifact in the run with no name filter, so a job left out of `needs` still has
+    # its artifacts published, just nondeterministically.
+    needs: [version, tectonic-docs, uv-docs, prepare-changes, kicad-release-v9]
     uses: ./.github/workflows/deploy-release.yml
     with:
       tag: ${{ needs.version.outputs.tag }}

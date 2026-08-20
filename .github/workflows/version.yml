@@ -73,7 +73,7 @@ jobs:
           dry_run: true
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Read preface file
         if: ${{ inputs.preface != '' }}

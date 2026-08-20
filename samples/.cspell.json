@@ -1,0 +1,14 @@
+{
+  "import": "../.cspell.json",
+  "words": [
+    "codesign",
+    "datas",
+    "Gerbers",
+    "hiddenimports",
+    "hooksconfig",
+    "hookspath",
+    "kibot",
+    "noarchive",
+    "pathex"
+  ]
+}
