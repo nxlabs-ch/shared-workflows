@@ -56,7 +56,7 @@ on:
         type: string
         default: ''
       artifact-suffix:
-        description: "Suffix (without leading '-') appended to the uploaded HTML artifact name and the PDF filename, to distinguish multiple builds of the same version (e.g. from a matrix)"
+        description: "Suffix (without leading '-') appended to the uploaded HTML artifact name and the PDF filename, to distinguish multiple builds of the same version (e.g. from a matrix). Only [A-Za-z0-9._-] is accepted; anything else fails the build"
         required: false
         type: string
         default: ''
@@ -142,48 +142,76 @@ jobs:
 
       - name: Set additional environment variables
         if: ${{ inputs.env != '' }}
-        run: echo "${{ inputs.env }}" >> "$GITHUB_ENV"
+        env:
+          # Passed through the environment rather than interpolated, so that a caller's
+          # input cannot inject shell code.
+          EXTRA_ENV: ${{ inputs.env }}
+        run: printf '%s\n' "$EXTRA_ENV" >> "$GITHUB_ENV"
 
       - name: Compute artifact suffix
         id: suffix
+        env:
+          ARTIFACT_SUFFIX: ${{ inputs.artifact-suffix }}
         run: |
-          if [ -n "${{ inputs.artifact-suffix }}" ]; then
-            echo "value=-${{ inputs.artifact-suffix }}" >> "$GITHUB_OUTPUT"
-          else
+          set -euo pipefail
+          if [ -z "$ARTIFACT_SUFFIX" ]; then
             echo "value=" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
+          # The suffix lands in artifact names and in the PDF filename, and is written to
+          # `$GITHUB_OUTPUT` as a single unterminated line. Reject anything that would
+          # break an upload or smuggle extra step outputs through an embedded newline.
+          # A `case` glob is matched against the whole value; `grep` would test each line
+          # separately and so accept a multi-line suffix.
+          case "$ARTIFACT_SUFFIX" in
+            *[!A-Za-z0-9._-]*)
+              echo "::error::artifact-suffix must contain only [A-Za-z0-9._-]"
+              exit 1
+              ;;
+          esac
+
+          echo "value=-$ARTIFACT_SUFFIX" >> "$GITHUB_OUTPUT"
+
       - name: Create version file
-        run: echo "${{ inputs.version }}" > .version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: printf '%s\n' "$VERSION" > .version
 
       - name: Extract project name from conf.py
         id: project-name
+        env:
+          DOCS_FOLDER: ${{ inputs.docs-folder }}
         run: |
-          PROJECT_NAME=$(python -c "
-          import sys
+          set -euo pipefail
+
+          # The script is written out with a quoted heredoc and reads the folder from the
+          # environment, so neither the shell nor a caller-supplied path can reach the
+          # Python source. It goes to a file rather than a heredoc inside `$( )`, which
+          # bash mis-parses when the body contains quote characters.
+          cat > "${RUNNER_TEMP}/project_name.py" <<'PY'
+          import os
           import re
-          sys.path.insert(0, '${{ inputs.docs-folder }}')
-          
-          # Read conf.py and extract project name using regex
+
           try:
-              with open('${{ inputs.docs-folder }}/conf.py', 'r') as f:
+              with open(os.path.join(os.environ["DOCS_FOLDER"], "conf.py")) as f:
                   content = f.read()
-              
-              # Look for project = 'value' or project = \"value\"
-              match = re.search(r'project\s*=\s*[\'\"](.*?)[\'\"]', content)
-              if match:
-                  project_name = match.group(1)
-                  print(project_name.lower().replace(' ', '-'))
-              else:
-                  print('no-name')
-          except Exception:
-              print('no-name')
-          ")
-          echo "name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          except OSError:
+              print("no-name")
+          else:
+              match = re.search(r"""project\s*=\s*['"](.*?)['"]""", content)
+              print(match.group(1).lower().replace(" ", "-") if match else "no-name")
+          PY
+
+          PROJECT_NAME=$(python "${RUNNER_TEMP}/project_name.py")
+          echo "name=$PROJECT_NAME" >> "$GITHUB_OUTPUT"
           echo "Extracted project name: $PROJECT_NAME"
 
       - name: Build HTML documentation
-        run: make -f ${{ inputs.makefile }} -C ${{ inputs.docs-folder }} html
+        env:
+          DOCS_FOLDER: ${{ inputs.docs-folder }}
+          MAKEFILE: ${{ inputs.makefile }}
+        run: make -f "$MAKEFILE" -C "$DOCS_FOLDER" html
 
       - name: Upload HTML documentation
         uses: actions/upload-artifact@v7
@@ -194,21 +222,27 @@ jobs:
 
       - name: Build PDF documentation
         if: ${{ inputs.build-pdf }}
-        run: make -f ${{ inputs.makefile }} -C ${{ inputs.docs-folder }} latexpdf
+        env:
+          DOCS_FOLDER: ${{ inputs.docs-folder }}
+          MAKEFILE: ${{ inputs.makefile }}
+        run: make -f "$MAKEFILE" -C "$DOCS_FOLDER" latexpdf
 
       - name: Rename PDF with version
         if: ${{ inputs.build-pdf }}
-        run: |
-          PDF_DIR="${{ inputs.docs-folder }}/_build/latex"
-          ORIGINAL_PDF="${{ inputs.pdf-name }}"
-          # Extract filename without extension
-          PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
-          # Create new filename with version
-          NEW_PDF="${PDF_BASE}${{ steps.suffix.outputs.value }}-${{ inputs.version }}.pdf"
-          # Rename the PDF file
-          mv "$PDF_DIR/$ORIGINAL_PDF" "$PDF_DIR/$NEW_PDF"
-          echo "new-pdf-name=$NEW_PDF" >> $GITHUB_OUTPUT
         id: rename-pdf
+        env:
+          DOCS_FOLDER: ${{ inputs.docs-folder }}
+          PDF_NAME: ${{ inputs.pdf-name }}
+          VERSION: ${{ inputs.version }}
+          SUFFIX: ${{ steps.suffix.outputs.value }}
+        run: |
+          set -euo pipefail
+          PDF_DIR="$DOCS_FOLDER/_build/latex"
+          # Extract filename without extension
+          PDF_BASE=$(basename "$PDF_NAME" .pdf)
+          NEW_PDF="${PDF_BASE}${SUFFIX}-${VERSION}.pdf"
+          mv "$PDF_DIR/$PDF_NAME" "$PDF_DIR/$NEW_PDF"
+          echo "new-pdf-name=$NEW_PDF" >> "$GITHUB_OUTPUT"
 
       - name: Upload PDF documentation
         if: ${{ inputs.build-pdf }}
