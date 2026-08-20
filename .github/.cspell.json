@@ -3,11 +3,17 @@
   "words": [
     "CMNB",
     "gsutil",
+    "fontspec",
     "kibot",
+    "mapfile",
+    "musl",
     "ncipollo",
+    "outdir",
+    "pdflatex",
     "pipefail",
     "pubspec",
     "shellcheck",
-    "svenstaro"
+    "svenstaro",
+    "xelatex"
   ]
 }

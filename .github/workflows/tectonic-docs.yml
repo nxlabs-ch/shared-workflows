@@ -1,4 +1,4 @@
-name: Build Documentation (using UV)
+name: Build Documentation (using UV and Tectonic)
 
 on:
   workflow_call:
@@ -40,11 +40,11 @@ on:
         description: "Additional system (apt) dependencies"
         required: false
         type: string
-      latex-packages:
-        description: "Additional apt packages to install alongside the LaTeX toolchain, space separated (e.g. 'texlive-fonts-extra')"
+      tectonic-version:
+        description: "The Tectonic release to install"
         required: false
         type: string
-        default: ''
+        default: '0.17.0'
       timeout-minutes:
         description: "Maximum duration of the documentation build job, in minutes"
         required: false
@@ -85,36 +85,6 @@ jobs:
       - name: Set up Python
         run: uv python install
 
-      - name: Install system dependencies for LaTeX
-        if: ${{ inputs.build-pdf }}
-        timeout-minutes: 15
-        env:
-          # Passed through the environment rather than interpolated, so that a caller's
-          # input cannot inject shell code.
-          EXTRA_PACKAGES: ${{ inputs.latex-packages }}
-        run: |
-          set -euo pipefail
-          # Word splitting of APT_OPTS and EXTRA_PACKAGES is intentional below.
-          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          for attempt in 1 2 3; do
-            # shellcheck disable=SC2086
-            sudo apt-get $APT_OPTS update && break
-            if [ "$attempt" -eq 3 ]; then
-              echo "apt-get update failed after 3 attempts" >&2
-              exit 1
-            fi
-            echo "apt-get update failed (attempt $attempt), retrying" >&2
-            sleep $((attempt * 15))
-          done
-          # shellcheck disable=SC2086
-          sudo apt-get $APT_OPTS install -y --no-install-recommends \
-            texlive-latex-recommended \
-            texlive-latex-extra \
-            texlive-fonts-recommended \
-            tex-gyre \
-            latexmk \
-            $EXTRA_PACKAGES
-
       - name: Install additional system dependencies
         if: ${{ inputs.dependencies != '' }}
         timeout-minutes: 15
@@ -140,6 +110,39 @@ jobs:
           # shellcheck disable=SC2086
           sudo apt-get $APT_OPTS install -y $PACKAGES
 
+      - name: Configure Tectonic cache location
+        if: ${{ inputs.build-pdf }}
+        run: |
+          # Pinned explicitly: Tectonic's default cache location is platform dependent
+          # and differs from the documented one on some platforms.
+          echo "TECTONIC_CACHE_DIR=${RUNNER_TEMP}/tectonic-cache" >> "$GITHUB_ENV"
+
+      - name: Install Tectonic
+        if: ${{ inputs.build-pdf }}
+        timeout-minutes: 5
+        env:
+          TECTONIC_VERSION: ${{ inputs.tectonic-version }}
+        run: |
+          set -euo pipefail
+          URL="https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40${TECTONIC_VERSION}/tectonic-${TECTONIC_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          mkdir -p "${RUNNER_TEMP}/tectonic-bin"
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 5 "$URL" \
+            | tar -xz -C "${RUNNER_TEMP}/tectonic-bin" tectonic
+          echo "${RUNNER_TEMP}/tectonic-bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/tectonic-bin/tectonic" --version
+
+      - name: Cache Tectonic bundle
+        if: ${{ inputs.build-pdf }}
+        uses: actions/cache@v5
+        with:
+          path: ${{ runner.temp }}/tectonic-cache
+          # Keyed on conf.py, which determines the LaTeX packages the document pulls in.
+          # The restore-keys prefix means a miss still starts from the previous bundle
+          # rather than fetching it all again.
+          key: ${{ runner.os }}-tectonic-${{ inputs.tectonic-version }}-${{ hashFiles(format('{0}/conf.py', inputs.docs-folder)) }}
+          restore-keys: |
+            ${{ runner.os }}-tectonic-${{ inputs.tectonic-version }}-
+
       - name: Set additional environment variables
         if: ${{ inputs.env != '' }}
         run: echo "${{ inputs.env }}" >> "$GITHUB_ENV"
@@ -163,12 +166,12 @@ jobs:
           import sys
           import re
           sys.path.insert(0, '${{ inputs.docs-folder }}')
-          
+
           # Read conf.py and extract project name using regex
           try:
               with open('${{ inputs.docs-folder }}/conf.py', 'r') as f:
                   content = f.read()
-              
+
               # Look for project = 'value' or project = \"value\"
               match = re.search(r'project\s*=\s*[\'\"](.*?)[\'\"]', content)
               if match:
@@ -194,15 +197,53 @@ jobs:
 
       - name: Build PDF documentation
         if: ${{ inputs.build-pdf }}
-        run: make -f ${{ inputs.makefile }} -C ${{ inputs.docs-folder }} latexpdf
+        id: build-pdf
+        env:
+          # Passed through the environment rather than interpolated, so that a caller's
+          # input cannot inject shell code.
+          DOCS_FOLDER: ${{ inputs.docs-folder }}
+          MAKEFILE: ${{ inputs.makefile }}
+          PDF_NAME: ${{ inputs.pdf-name }}
+        run: |
+          set -euo pipefail
+          make -f "$MAKEFILE" -C "$DOCS_FOLDER" latex
+
+          LATEX_DIR="$DOCS_FOLDER/_build/latex"
+          TEX_FILE="$LATEX_DIR/$(basename "$PDF_NAME" .pdf).tex"
+          if [ ! -f "$TEX_FILE" ]; then
+            # Fall back to discovery when the document name does not match `pdf-name`.
+            mapfile -t CANDIDATES < <(find "$LATEX_DIR" -maxdepth 1 -name '*.tex')
+            if [ "${#CANDIDATES[@]}" -ne 1 ]; then
+              echo "::error::expected $TEX_FILE, found ${#CANDIDATES[@]} .tex files in $LATEX_DIR"
+              exit 1
+            fi
+            TEX_FILE="${CANDIDATES[0]}"
+          fi
+
+          # Sphinx only emits `fontspec` when `latex_engine` is xelatex. Tectonic is a XeTeX
+          # engine: it compiles pdflatex-targeted sources without failing, but silently drops
+          # every non-ASCII glyph. Refuse rather than publish a quietly broken PDF.
+          if ! grep -q 'fontspec' "$TEX_FILE"; then
+            echo "::error::$TEX_FILE was generated for pdflatex. Set latex_engine = \"xelatex\" in $DOCS_FOLDER/conf.py."
+            exit 1
+          fi
+
+          tectonic -X compile "$TEX_FILE" --outdir "$LATEX_DIR" 2>&1 | tee "${RUNNER_TEMP}/tectonic.log"
+          if grep -q 'Missing character' "${RUNNER_TEMP}/tectonic.log"; then
+            echo "::warning::Tectonic reported missing characters: some glyphs are absent from the PDF."
+          fi
+
+          # Tectonic names the PDF after the .tex it compiled, which is not necessarily `pdf-name`.
+          echo "pdf-file=$(basename "${TEX_FILE%.tex}.pdf")" >> "$GITHUB_OUTPUT"
 
       - name: Rename PDF with version
         if: ${{ inputs.build-pdf }}
         run: |
           PDF_DIR="${{ inputs.docs-folder }}/_build/latex"
-          ORIGINAL_PDF="${{ inputs.pdf-name }}"
-          # Extract filename without extension
-          PDF_BASE=$(basename "$ORIGINAL_PDF" .pdf)
+          ORIGINAL_PDF="${{ steps.build-pdf.outputs.pdf-file }}"
+          # Extract filename without extension, from the requested name rather than the
+          # compiled one, so the uploaded artifact always honours `pdf-name`.
+          PDF_BASE=$(basename "${{ inputs.pdf-name }}" .pdf)
           # Create new filename with version
           NEW_PDF="${PDF_BASE}${{ steps.suffix.outputs.value }}-${{ inputs.version }}.pdf"
           # Rename the PDF file

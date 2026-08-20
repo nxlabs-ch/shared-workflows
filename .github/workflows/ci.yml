@@ -115,6 +115,18 @@ jobs:
       makefile: "uv-makefile"
       dependencies: "doxygen" # Install doxygen for API docs generation just for validation that it works
 
+  tectonic-docs:
+    needs: [version, check-toml-version]
+    uses: ./.github/workflows/tectonic-docs.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      pdf-name: "shared-workflows.pdf"
+      build-pdf: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+      makefile: "uv-makefile"
+      # Distinguishes these artifacts from the `uv-docs` job's, which builds the same document.
+      artifact-suffix: "tectonic"
+      dependencies: "doxygen" # Install doxygen for API docs generation just for validation that it works
+
   prepare-changes:
     needs: version
     runs-on: ubuntu-24.04

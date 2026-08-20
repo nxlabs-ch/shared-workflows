@@ -10,6 +10,12 @@ html:
 latexpdf:
 	uv run sphinx-build -M latexpdf . $(BUILDDIR)
 
+# Used by `tectonic-docs.yml`, which compiles the generated sources itself. Tectonic is a
+# XeTeX engine, so the engine is overridden here rather than in `conf.py`: this repository
+# also builds a PDF through `uv-docs.yml`, whose `latexpdf` target above needs pdflatex.
+latex:
+	uv run sphinx-build -M latex . $(BUILDDIR) -D latex_engine=xelatex
+
 docs: html latexpdf
 
 clean:

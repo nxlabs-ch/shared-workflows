@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: version
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: nxlabs-ch/shared-workflows/.github/actions/check-version@main
         with:
           version: ${{ needs.version.outputs.tag }}
