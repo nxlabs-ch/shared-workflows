@@ -1,0 +1,13 @@
+{
+  "import": "../.cspell.json",
+  "words": [
+    "CMNB",
+    "gsutil",
+    "kibot",
+    "ncipollo",
+    "pipefail",
+    "pubspec",
+    "shellcheck",
+    "svenstaro"
+  ]
+}
