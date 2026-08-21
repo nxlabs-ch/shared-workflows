@@ -266,7 +266,28 @@ jobs:
             exit 1
           fi
 
-          tectonic -X compile "$TEX_FILE" --outdir "$LATEX_DIR" 2>&1 | tee "${RUNNER_TEMP}/tectonic.log"
+          # Tectonic issues one HTTP range request per support file against the bundle, so a
+          # cold cache means hundreds of them. Several matrix legs starting cold at once earn
+          # a 429 from the relay, and Tectonic's own three retries are immediate and do not
+          # outlast it. Back off and retry the whole compile: each attempt keeps the files it
+          # did manage to fetch, so a retry resumes rather than starts over.
+          #
+          # `pipefail` gives the pipeline Tectonic's exit status rather than tee's, which is
+          # what we want; running it under `if` is what keeps `errexit` from aborting the step
+          # before the loop can retry.
+          for attempt in 1 2 3; do
+            if tectonic -X compile "$TEX_FILE" --outdir "$LATEX_DIR" 2>&1 \
+                 | tee "${RUNNER_TEMP}/tectonic.log"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::tectonic failed after 3 attempts; see the log above"
+              exit 1
+            fi
+            echo "tectonic failed (attempt $attempt), retrying" >&2
+            sleep $((attempt * 30))
+          done
+
           if grep -q 'Missing character' "${RUNNER_TEMP}/tectonic.log"; then
             echo "::warning::Tectonic reported missing characters: some glyphs are absent from the PDF."
           fi
