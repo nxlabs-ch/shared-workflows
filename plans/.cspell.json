@@ -1,0 +1,8 @@
+{
+  "import": "../.cspell.json",
+  "words": [
+    "CMNB",
+    "kibot",
+    "nondeterministically"
+  ]
+}
