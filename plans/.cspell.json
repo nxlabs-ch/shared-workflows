@@ -2,7 +2,17 @@
   "import": "../.cspell.json",
   "words": [
     "CMNB",
+    "datasheet",
+    "Digi",
+    "Elektronik",
+    "Gerbers",
+    "JLCPCB",
+    "kibom",
     "kibot",
-    "nondeterministically"
+    "nondeterministically",
+    "nullglob",
+    "raspberrypi",
+    "Reister",
+    "Würth"
   ]
 }
